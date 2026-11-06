@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CoverLetterModal } from "./cover-letter-modal";
 
 export interface MatchJob {
   jobId: string;
@@ -223,6 +224,16 @@ export function TopMatchesFeed({ onApplicationCreated }: TopMatchesProps) {
                   </div>
 
                   <div className="flex items-center gap-2">
+                    <CoverLetterModal
+                      job={{
+                        jobTitle: job.jobTitle,
+                        companyName: job.companyName,
+                        location: job.location,
+                        description: job.rationale,
+                        requirements: job.matchingSkills.join(", "),
+                      }}
+                    />
+
                     <a
                       href={job.url}
                       target="_blank"

@@ -473,9 +473,14 @@ export function saveScrapedJobs(newJobs: ScrapedJobRaw[]): number {
 }
 
 /**
- * Queries stored jobs with portal source filtering and keyword search
+ * Queries stored jobs with portal source, location, contract category filtering, and keyword search
  */
-export function getScrapedJobs(filters?: { source?: string | null; search?: string | null }): StoredJob[] {
+export function getScrapedJobs(filters?: {
+  source?: string | null;
+  search?: string | null;
+  location?: string | null;
+  category?: string | null;
+}): StoredJob[] {
   let jobs = loadJobsFromDiskOrMemory();
 
   if (filters?.source && filters.source !== "all") {
@@ -489,6 +494,45 @@ export function getScrapedJobs(filters?: { source?: string | null; search?: stri
         (targetSource === "aneti" && s.includes("aneti")) ||
         (targetSource === "optioncarriere" && s.includes("optioncarriere"))
       );
+    });
+  }
+
+  if (filters?.location && filters.location !== "all") {
+    const loc = filters.location.toLowerCase().trim();
+    jobs = jobs.filter((j) => {
+      const l = j.location.toLowerCase();
+      if (loc === "tunis") {
+        return l.includes("tunis") || l.includes("ariana") || l.includes("ben arous") || l.includes("lac") || l.includes("charguia") || l.includes("ghazala");
+      }
+      if (loc === "sahel") {
+        return l.includes("sousse") || l.includes("monastir") || l.includes("mahdia");
+      }
+      if (loc === "remote") {
+        return l.includes("remote") || l.includes("hybride") || l.includes("hybrid") || l.includes("télétravail");
+      }
+      return l.includes(loc);
+    });
+  }
+
+  if (filters?.category && filters.category !== "all") {
+    const cat = filters.category.toLowerCase().trim();
+    jobs = jobs.filter((j) => {
+      const c = (j.category || "").toLowerCase();
+      const t = j.job_title.toLowerCase();
+      const d = j.description.toLowerCase();
+      if (cat === "civp") {
+        return c.includes("civp") || t.includes("civp") || d.includes("civp") || j.source_site.includes("ANETI");
+      }
+      if (cat === "karama") {
+        return c.includes("karama") || t.includes("karama") || d.includes("karama");
+      }
+      if (cat === "cdi") {
+        return c.includes("cdi") || (!c.includes("stage") && !c.includes("pfe") && !c.includes("civp"));
+      }
+      if (cat === "stage") {
+        return c.includes("stage") || c.includes("pfe") || c.includes("internship") || t.includes("stage") || t.includes("pfe");
+      }
+      return c.includes(cat);
     });
   }
 

@@ -9,6 +9,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const source = searchParams.get("source");
     const search = searchParams.get("q");
+    const location = searchParams.get("location");
+    const category = searchParams.get("category");
 
     // 1. Attempt to query live PostgreSQL database via Prisma if available
     if (await isDatabaseAvailable()) {
@@ -62,7 +64,7 @@ export async function GET(request: Request) {
     }
 
     // 2. High-availability persistent store across all 10 official portals
-    const storedJobs = getScrapedJobs({ source, search });
+    const storedJobs = getScrapedJobs({ source, search, location, category });
 
     return NextResponse.json({
       success: true,

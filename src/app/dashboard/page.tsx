@@ -27,6 +27,7 @@ import { TopMatchesFeed } from "@/components/dashboard/top-matches";
 import { ApplicationTrackerPanel } from "@/components/dashboard/application-tracker";
 import { VirtualGuideModal, OnboardingGuide } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
+import { CoverLetterModal } from "@/components/dashboard/cover-letter-modal";
 import { TUNISIAN_PORTALS } from "@/services/scraper/types";
 
 interface JobItem {
@@ -59,6 +60,8 @@ export default function DashboardPage() {
   const [isLoadingJobs, setIsLoadingJobs] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [sourceFilter, setSourceFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   // Scraper manual trigger state
   const [isScraping, setIsScraping] = useState(false);
@@ -91,12 +94,12 @@ export default function DashboardPage() {
   // Fetch Jobs on Mount & when filters change
   useEffect(() => {
     fetchJobs();
-  }, [sourceFilter]);
+  }, [sourceFilter, locationFilter, categoryFilter]);
 
   const fetchJobs = async () => {
     setIsLoadingJobs(true);
     try {
-      const url = `/api/jobs?source=${encodeURIComponent(sourceFilter)}&q=${encodeURIComponent(searchQuery)}`;
+      const url = `/api/jobs?source=${encodeURIComponent(sourceFilter)}&location=${encodeURIComponent(locationFilter)}&category=${encodeURIComponent(categoryFilter)}&q=${encodeURIComponent(searchQuery)}`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.success && data.jobs) {
@@ -402,6 +405,119 @@ export default function DashboardPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Regional & Contract Filters */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                {/* Location Filter */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+                  <span className="font-semibold text-slate-400 shrink-0">Lieu:</span>
+                  <button
+                    onClick={() => setLocationFilter("all")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      locationFilter === "all"
+                        ? "bg-slate-800 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Toute la Tunisie
+                  </button>
+                  <button
+                    onClick={() => setLocationFilter("tunis")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      locationFilter === "tunis"
+                        ? "bg-red-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Grand Tunis
+                  </button>
+                  <button
+                    onClick={() => setLocationFilter("sahel")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      locationFilter === "sahel"
+                        ? "bg-red-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Sousse / Sahel
+                  </button>
+                  <button
+                    onClick={() => setLocationFilter("sfax")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      locationFilter === "sfax"
+                        ? "bg-red-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Sfax
+                  </button>
+                  <button
+                    onClick={() => setLocationFilter("remote")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      locationFilter === "remote"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Télétravail / Hybride
+                  </button>
+                </div>
+
+                {/* Contract Filter */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[11px]">
+                  <span className="font-semibold text-slate-400 shrink-0">Contrat:</span>
+                  <button
+                    onClick={() => setCategoryFilter("all")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      categoryFilter === "all"
+                        ? "bg-slate-800 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Tous
+                  </button>
+                  <button
+                    onClick={() => setCategoryFilter("cdi")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      categoryFilter === "cdi"
+                        ? "bg-red-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    CDI
+                  </button>
+                  <button
+                    onClick={() => setCategoryFilter("civp")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      categoryFilter === "civp"
+                        ? "bg-emerald-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    CIVP (ANETI)
+                  </button>
+                  <button
+                    onClick={() => setCategoryFilter("karama")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      categoryFilter === "karama"
+                        ? "bg-sky-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Karama
+                  </button>
+                  <button
+                    onClick={() => setCategoryFilter("stage")}
+                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                      categoryFilter === "stage"
+                        ? "bg-purple-600 text-white"
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    Stage / PFE
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Search Bar Form */}
@@ -497,15 +613,26 @@ export default function DashboardPage() {
                           </td>
 
                           <td className="py-3.5 px-4 text-right">
-                            <a
-                              href={job.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-red-50 hover:text-red-700 font-bold text-[11px] text-slate-700 transition-all"
-                            >
-                              <span>Postuler</span>
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
+                            <div className="flex items-center justify-end gap-2">
+                              <CoverLetterModal
+                                job={{
+                                  jobTitle: job.job_title,
+                                  companyName: job.company_name,
+                                  location: job.location,
+                                  description: job.description,
+                                  requirements: job.requirements,
+                                }}
+                              />
+                              <a
+                                href={job.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-red-50 hover:text-red-700 font-bold text-[11px] text-slate-700 transition-all"
+                              >
+                                <span>Postuler</span>
+                                <ExternalLink className="w-3 h-3" />
+                              </a>
+                            </div>
                           </td>
                         </tr>
                       );
