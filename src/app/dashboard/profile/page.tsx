@@ -18,6 +18,8 @@ import {
   Globe,
   Award,
   Check,
+  GraduationCap,
+  Briefcase,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AtsParseResult } from "@/services/ai/types";
@@ -27,6 +29,7 @@ interface UserProfile {
   email: string;
   firstName: string;
   lastName: string;
+  userType?: "student" | "worker";
   linkedinUrl: string;
   githubUrl: string;
   portfolioUrl: string;
@@ -42,6 +45,7 @@ export default function ProfilePage() {
     email: "",
     firstName: "",
     lastName: "",
+    userType: "student",
     linkedinUrl: "",
     githubUrl: "",
     portfolioUrl: "",
@@ -115,6 +119,7 @@ export default function ProfilePage() {
               email: data.profile.email || prev.email || session?.user?.email || "ouerhaiadem0805@gmail.com",
               firstName: prev.firstName || data.profile.firstName || "",
               lastName: prev.lastName || data.profile.lastName || "",
+              userType: data.profile.userType || prev.userType || "student",
               linkedinUrl: prev.linkedinUrl || data.profile.linkedinUrl || "",
               githubUrl: prev.githubUrl || data.profile.githubUrl || "",
               portfolioUrl: prev.portfolioUrl || data.profile.portfolioUrl || "",
@@ -409,6 +414,69 @@ export default function ProfilePage() {
             </div>
 
             <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+                  Statut & Cible de Recherche
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange("userType", "student")}
+                    className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all ${
+                      profile.userType === "student"
+                        ? "border-purple-600 bg-purple-50/70 ring-2 ring-purple-600/20"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        profile.userType === "student"
+                          ? "bg-purple-600 text-white"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      <GraduationCap className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900">
+                        Étudiant / Stagiaire
+                      </span>
+                      <span className="block text-[10px] text-slate-500 mt-0.5 leading-tight">
+                        Stages PFE, d&apos;été, fin d&apos;études et pré-embauche
+                      </span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleInputChange("userType", "worker")}
+                    className={`p-3 rounded-xl border text-left flex items-start gap-3 transition-all ${
+                      profile.userType === "worker"
+                        ? "border-red-600 bg-red-50/70 ring-2 ring-red-600/20"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div
+                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                        profile.userType === "worker"
+                          ? "bg-red-600 text-white"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      <Briefcase className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="block text-xs font-bold text-slate-900">
+                        Professionnel / Travailleur
+                      </span>
+                      <span className="block text-[10px] text-slate-500 mt-0.5 leading-tight">
+                        Emplois en CDI, CIVP, Karama et missions confirmées
+                      </span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">

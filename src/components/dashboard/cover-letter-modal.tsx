@@ -21,6 +21,7 @@ interface CoverLetterModalProps {
     description?: string;
     requirements?: string;
   };
+  userType?: "student" | "worker";
   triggerClassName?: string;
   buttonVariant?: "default" | "secondary" | "outline" | "ghost";
   buttonSize?: "default" | "sm" | "lg" | "icon";
@@ -28,6 +29,7 @@ interface CoverLetterModalProps {
 
 export function CoverLetterModal({
   job,
+  userType,
   triggerClassName = "",
   buttonVariant = "outline",
   buttonSize = "sm",
@@ -38,6 +40,12 @@ export function CoverLetterModal({
   const [isLoading, setIsLoading] = useState(false);
   const [hasCopied, setHasCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const isStage =
+    userType === "student" ||
+    job.jobTitle.toLowerCase().includes("stage") ||
+    job.jobTitle.toLowerCase().includes("pfe") ||
+    job.jobTitle.toLowerCase().includes("intern");
 
   const generateLetter = async (lang: "fr" | "en" = language) => {
     setIsLoading(true);
@@ -53,6 +61,7 @@ export function CoverLetterModal({
           description: job.description,
           requirements: job.requirements,
           language: lang,
+          userType: userType || (isStage ? "student" : "worker"),
         }),
       });
 
@@ -111,7 +120,7 @@ export function CoverLetterModal({
         className={`text-xs font-semibold gap-1.5 transition-all ${triggerClassName}`}
       >
         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-        <span>Lettre IA</span>
+        <span>{isStage ? "Demande Stage IA" : "Lettre IA"}</span>
       </Button>
 
       {isOpen && (
@@ -125,10 +134,10 @@ export function CoverLetterModal({
                   <span>Rédigé par Gemini IA</span>
                 </div>
                 <h3 className="text-lg font-black text-slate-900 tracking-tight">
-                  Lettre de Motivation Sur-Mesure
+                  {isStage ? "Demande de Stage PFE Sur-Mesure" : "Lettre de Motivation Sur-Mesure"}
                 </h3>
                 <p className="text-xs text-slate-500">
-                  Personnalisée pour le poste de{" "}
+                  Personnalisée pour {isStage ? "le stage" : "le poste"} de{" "}
                   <strong className="text-slate-700">{job.jobTitle}</strong> chez{" "}
                   <strong className="text-slate-700">{job.companyName}</strong>
                 </p>

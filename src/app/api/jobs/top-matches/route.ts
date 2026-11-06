@@ -13,6 +13,11 @@ export async function GET(request: Request) {
     const userEmail = session?.user?.email || "ouerhaiadem0805@gmail.com";
 
     const profile = getProfileForEmail(userEmail);
+    const { searchParams } = new URL(request.url);
+    const paramUserType = searchParams.get("userType");
+    const userType: "student" | "worker" =
+      paramUserType === "worker" || profile.userType === "worker" ? "worker" : "student";
+
     const candidateSkills: string[] = ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "Docker", "Tailwind CSS"];
     const atsScore = profile.atsScore !== null ? Math.round(profile.atsScore) : undefined;
 
@@ -33,6 +38,7 @@ export async function GET(request: Request) {
       {
         skills: candidateSkills,
         atsScore,
+        userType,
       },
       10
     );

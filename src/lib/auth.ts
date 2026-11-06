@@ -8,6 +8,7 @@ export interface RegisteredUser {
   email: string;
   passwordHash: string;
   name: string;
+  userType?: "student" | "worker";
 }
 
 // In-memory user registry containing the default seeded account with secure bcrypt hash
@@ -17,15 +18,22 @@ export const registeredUsers: RegisteredUser[] = [
     email: "ouerhaiadem0805@gmail.com",
     passwordHash: "$2a$10$.OveQhg3.zeX.xh6GkZfBOIM93B4SqlElqJHdXl0yznt0GDDnSSQK",
     name: "Adem Ouerhai",
+    userType: "student",
   },
 ];
 
-export function registerNewUser(email: string, passwordHash: string, name: string): RegisteredUser {
+export function registerNewUser(
+  email: string,
+  passwordHash: string,
+  name: string,
+  userType: "student" | "worker" = "student"
+): RegisteredUser {
   const normalized = email.toLowerCase().trim();
   const existing = registeredUsers.find((u) => u.email.toLowerCase() === normalized);
   if (existing) {
     existing.passwordHash = passwordHash;
     existing.name = name;
+    existing.userType = userType;
     return existing;
   }
   const newUser: RegisteredUser = {
@@ -33,6 +41,7 @@ export function registerNewUser(email: string, passwordHash: string, name: strin
     email: normalized,
     passwordHash,
     name,
+    userType,
   };
   registeredUsers.push(newUser);
   return newUser;
@@ -67,13 +76,17 @@ export const authOptions: AuthOptions = {
             id: inMemoryUser.id,
             email: inMemoryUser.email,
             name: inMemoryUser.name,
-          };
+            userType: inMemoryUser.userType || "student",
+          } as any;
         }
 
         // 2. Check PostgreSQL database if connected
         if (await isDatabaseAvailable()) {
           try {
-            const dbUser = await prisma.user.findUnique({ where: { email } });
+            const dbUser = await prisma.user.findUnique({
+              where: { email },
+              include: { profile: true },
+            });
             if (dbUser) {
               const isMatch = await bcrypt.compare(password, dbUser.passwordHash);
               if (!isMatch) {
@@ -83,7 +96,8 @@ export const authOptions: AuthOptions = {
                 id: dbUser.id,
                 email: dbUser.email,
                 name: email.split("@")[0],
-              };
+                userType: (dbUser.profile as any)?.userType || "student",
+              } as any;
             }
           } catch {
             // Database connection offline, fall through to error
@@ -104,6 +118,7 @@ export const authOptions: AuthOptions = {
         token.id = user.id;
         token.email = user.email;
         token.name = user.name;
+        token.userType = (user as any).userType || "student";
       }
       return token;
     },
@@ -112,6 +127,7 @@ export const authOptions: AuthOptions = {
         (session.user as any).id = token.id as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
+        (session.user as any).userType = (token.userType as string) || "student";
       }
       return session;
     },

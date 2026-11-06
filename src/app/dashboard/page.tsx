@@ -20,6 +20,7 @@ import {
   Layers,
   User,
   Globe2,
+  GraduationCap,
 } from "lucide-react";
 import { StatsCards, DashboardMetricStats } from "@/components/dashboard/stats-cards";
 import { AnalyticsCharts } from "@/components/dashboard/analytics-charts";
@@ -62,6 +63,7 @@ export default function DashboardPage() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
+  const [userType, setUserType] = useState<"student" | "worker">("student");
 
   // Scraper manual trigger state
   const [isScraping, setIsScraping] = useState(false);
@@ -73,6 +75,35 @@ export default function DashboardPage() {
       router.push("/login");
     }
   }, [status, router]);
+
+  // Load user profile to detect userType on mount
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const res = await fetch("/api/profile");
+        const data = await res.json();
+        if (data.success && data.profile?.userType) {
+          setUserType(data.profile.userType);
+        }
+      } catch (err) {
+        console.warn("Could not load user profile:", err);
+      }
+    }
+    loadProfile();
+  }, []);
+
+  const handleToggleUserType = async (newType: "student" | "worker") => {
+    setUserType(newType);
+    try {
+      await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userType: newType }),
+      });
+    } catch {
+      // non-blocking
+    }
+  };
 
   // Load clean real metrics on mount
   const refreshMetrics = async () => {
@@ -94,12 +125,12 @@ export default function DashboardPage() {
   // Fetch Jobs on Mount & when filters change
   useEffect(() => {
     fetchJobs();
-  }, [sourceFilter, locationFilter, categoryFilter]);
+  }, [sourceFilter, locationFilter, categoryFilter, userType]);
 
   const fetchJobs = async () => {
     setIsLoadingJobs(true);
     try {
-      const url = `/api/jobs?source=${encodeURIComponent(sourceFilter)}&location=${encodeURIComponent(locationFilter)}&category=${encodeURIComponent(categoryFilter)}&q=${encodeURIComponent(searchQuery)}`;
+      const url = `/api/jobs?source=${encodeURIComponent(sourceFilter)}&location=${encodeURIComponent(locationFilter)}&category=${encodeURIComponent(categoryFilter)}&userType=${encodeURIComponent(userType)}&q=${encodeURIComponent(searchQuery)}`;
       const res = await fetch(url);
       const data = await res.json();
       if (data.success && data.jobs) {
@@ -162,7 +193,37 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <nav className="flex items-center gap-3 sm:gap-6">
+          <nav className="flex items-center gap-3 sm:gap-5">
+            {/* Persona Switcher Toggle (Student ⇄ Worker) */}
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+              <button
+                type="button"
+                onClick={() => handleToggleUserType("student")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  userType === "student"
+                    ? "bg-purple-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Mode Étudiant : Afficher les stages PFE, stages d'été et stages ouvrier"
+              >
+                <GraduationCap className="w-3.5 h-3.5" />
+                <span>Étudiant (Stages)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleUserType("worker")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
+                  userType === "worker"
+                    ? "bg-red-600 text-white shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                title="Mode Travailleur : Afficher les emplois, CDI, CIVP et postes professionnels"
+              >
+                <Briefcase className="w-3.5 h-3.5" />
+                <span>Professionnel</span>
+              </button>
+            </div>
+
             <Link href="/dashboard" className="text-xs font-bold text-red-600 border-b-2 border-red-600 pb-1">
               Dashboard & Offres
             </Link>
@@ -196,17 +257,48 @@ export default function DashboardPage() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* Banner with Scraper Trigger & Onboarding Guide */}
-        <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-red-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+        <div
+          className={`rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden transition-all duration-300 ${
+            userType === "student"
+              ? "bg-gradient-to-r from-slate-950 via-purple-950 to-slate-900"
+              : "bg-gradient-to-r from-slate-950 via-slate-900 to-red-950"
+          }`}
+        >
           <div className="max-w-2xl space-y-2 relative z-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-600/30 text-red-300 text-xs font-extrabold uppercase tracking-wider border border-red-500/30">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>10 Portails Tunisiens Connectés en Direct</span>
+            <div
+              className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider border ${
+                userType === "student"
+                  ? "bg-purple-600/30 text-purple-300 border-purple-500/30"
+                  : "bg-red-600/30 text-red-300 border-red-500/30"
+              }`}
+            >
+              {userType === "student" ? (
+                <>
+                  <GraduationCap className="w-3.5 h-3.5 text-purple-300 animate-pulse" />
+                  <span>Portail Étudiant & Stages PFE Tunisie (10 Portails)</span>
+                </>
+              ) : (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>10 Portails Tunisiens Connectés en Direct</span>
+                </>
+              )}
             </div>
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
-              Intelligence & Scraping Dashboard
+              {userType === "student"
+                ? "Portail Stages PFE & d'Études en Tunisie"
+                : "Intelligence & Scraping Dashboard"}
             </h1>
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-              Extraction continue sur <strong>TanitJobs, LinkedIn Jobs, Keejob, ANETI, Optioncarriere, CRIT, CareerJet, Bayt, Farah & Expertini</strong>, analyse ATS certifiée <strong>Gemini IA</strong> et prédiction de compatibilité d&apos;embauche.
+              {userType === "student" ? (
+                <>
+                  Extraction ciblée des offres de <strong>Stage PFE, Stage d&apos;été, Stage de fin d&apos;études et pré-embauche</strong> sur les 10 portails tunisiens, analyse ATS certifiée <strong>Gemini IA</strong> et génération de demandes de stage conventionnées.
+                </>
+              ) : (
+                <>
+                  Extraction continue sur <strong>TanitJobs, LinkedIn Jobs, Keejob, ANETI, Optioncarriere, CRIT, CareerJet, Bayt, Farah & Expertini</strong>, analyse ATS certifiée <strong>Gemini IA</strong> et prédiction de compatibilité d&apos;embauche.
+                </>
+              )}
             </p>
           </div>
 
@@ -215,17 +307,29 @@ export default function DashboardPage() {
               size="sm"
               disabled={isScraping}
               onClick={handleTriggerScraper}
-              className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-600/30"
+              className={`text-white text-xs font-bold shadow-md ${
+                userType === "student"
+                  ? "bg-purple-600 hover:bg-purple-700 shadow-purple-600/30"
+                  : "bg-red-600 hover:bg-red-700 shadow-red-600/30"
+              }`}
             >
               {isScraping ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                  <span>Indexation des 10 portails...</span>
+                  <span>
+                    {userType === "student"
+                      ? "Recherche de stages en cours..."
+                      : "Indexation des 10 portails..."}
+                  </span>
                 </>
               ) : (
                 <>
                   <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-                  <span>Lancer le Scraper (10 Portails)</span>
+                  <span>
+                    {userType === "student"
+                      ? "Lancer le Scraper Stages (PFE & Été)"
+                      : "Lancer le Scraper (10 Portails)"}
+                  </span>
                 </>
               )}
             </Button>
@@ -306,15 +410,27 @@ export default function DashboardPage() {
             onClick={() => setActiveTab("top10")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
               activeTab === "top10"
-                ? "bg-red-600 text-white shadow-sm shadow-red-600/20"
+                ? userType === "student"
+                  ? "bg-purple-600 text-white shadow-sm shadow-purple-600/20"
+                  : "bg-red-600 text-white shadow-sm shadow-red-600/20"
                 : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Top 10 Curated Matches</span>
+            {userType === "student" ? (
+              <GraduationCap className="w-3.5 h-3.5" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5" />
+            )}
+            <span>
+              {userType === "student" ? "Top 10 Stages & PFE Curated" : "Top 10 Curated Matches"}
+            </span>
             <span
               className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
-                activeTab === "top10" ? "bg-white text-red-600" : "bg-red-100 text-red-700"
+                activeTab === "top10"
+                  ? userType === "student"
+                    ? "bg-white text-purple-700"
+                    : "bg-white text-red-600"
+                  : "bg-purple-100 text-purple-700"
               }`}
             >
               IA
@@ -330,7 +446,11 @@ export default function DashboardPage() {
             }`}
           >
             <Briefcase className="w-3.5 h-3.5" />
-            <span>Flux d&apos;Offres (10 Portails)</span>
+            <span>
+              {userType === "student"
+                ? "Flux de Stages & PFE (10 Portails)"
+                : "Flux d'Offres (10 Portails)"}
+            </span>
           </button>
 
           <button
@@ -350,6 +470,7 @@ export default function DashboardPage() {
         {activeTab === "top10" && (
           <div className="animate-in fade-in duration-200">
             <TopMatchesFeed
+              userType={userType}
               onApplicationCreated={() => {
                 setMetrics((m) => ({
                   ...m,
@@ -367,15 +488,27 @@ export default function DashboardPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <Briefcase className="w-5 h-5 text-red-600" />
-                    <span>Toutes les Offres Récentes Scrappées en Tunisie</span>
+                    {userType === "student" ? (
+                      <GraduationCap className="w-5 h-5 text-purple-600" />
+                    ) : (
+                      <Briefcase className="w-5 h-5 text-red-600" />
+                    )}
+                    <span>
+                      {userType === "student"
+                        ? "Tous les Stages & Offres PFE Récents en Tunisie"
+                        : "Toutes les Offres Récentes Scrappées en Tunisie"}
+                    </span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Dédoublonnées et indexées depuis les 10 portails nationaux et internationaux
+                    {userType === "student"
+                      ? "Stages PFE, stages d'été et pré-embauche indexés sur les 10 portails nationaux"
+                      : "Dédoublonnées et indexées depuis les 10 portails nationaux et internationaux"}
                   </p>
                 </div>
                 <div className="text-xs font-semibold text-slate-500">
-                  {jobs.length} offre{jobs.length > 1 ? "s" : ""} affichée{jobs.length > 1 ? "s" : ""}
+                  {jobs.length} {userType === "student" ? "stage" : "offre"}
+                  {jobs.length > 1 ? "s" : ""} affiché
+                  {userType === "student" ? (jobs.length > 1 ? "s" : "") : jobs.length > 1 ? "es" : "e"}
                 </div>
               </div>
 
@@ -615,6 +748,7 @@ export default function DashboardPage() {
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <CoverLetterModal
+                                userType={userType}
                                 job={{
                                   jobTitle: job.job_title,
                                   companyName: job.company_name,

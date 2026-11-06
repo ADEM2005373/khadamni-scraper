@@ -31,6 +31,7 @@ model Profile {
   portfolioUrl String?
   cvFileUrl    String?
   atsScore     Float?
+  userType     String    @default("worker") // "student" or "worker"
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @default(now()) @updatedAt
 

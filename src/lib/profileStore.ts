@@ -13,6 +13,7 @@ export interface UserProfileData {
   cvFileUrl: string | null;
   atsScore: number | null;
   hasCompletedOnboarding: boolean;
+  userType?: "student" | "worker";
 }
 
 // Global in-memory map of profiles keyed by email surviving HMR
@@ -92,6 +93,7 @@ export function getProfileForEmail(email: string): UserProfileData {
       cvFileUrl: null,
       atsScore: null,
       hasCompletedOnboarding: false,
+      userType: "student",
     };
     globalProfiles.set(normalized, initial);
     saveToDisk(globalProfiles);

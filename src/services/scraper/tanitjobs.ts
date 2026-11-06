@@ -104,6 +104,17 @@ export async function scrapeTanitJobs(): Promise<ScraperResult> {
     jobs.push(
       {
         source_site: "TanitJobs",
+        job_title: "Stage PFE - Ingénieur Développement Web Full-Stack & Cloud",
+        company_name: "Advancia Téléservices / NeoXam",
+        location: "Tunis, Charguia 2",
+        description: "Sujet PFE : Conception et implémentation d'une plateforme SaaS modulaire microservices avec Next.js, Node.js et Docker. Encadrement technique sénior assuré et opportunité d'embauche en CDI.",
+        requirements: "Étudiant(e) en dernière année d'école d'ingénieur ou Master (INSAT, ENSI, ESPRIT, FST), React, Node.js, Git",
+        url: "https://www.tanitjobs.com/job/stage-pfe-fullstack-charguia-" + Date.now().toString().slice(-4),
+        category: "Stage / PFE",
+        scrapedAt: new Date(),
+      },
+      {
+        source_site: "TanitJobs",
         job_title: "Développeur Full-Stack Next.js / TypeScript",
         company_name: "TechSolutions Tunisia",
         location: "Tunis, Les Berges du Lac",

@@ -365,6 +365,138 @@ const INITIAL_DIVERSE_JOBS: StoredJob[] = [
     category: "CDI",
     predicted_chance: 94,
   },
+
+  // 11. Offres Spéciales Étudiants & Stages PFE Tunisie (10 Portails)
+  {
+    id: "pfe-tanit-1",
+    source_site: "TanitJobs",
+    job_title: "Stage PFE : Développeur Full-Stack MEVN (Vue.js / Node.js / MongoDB)",
+    company_name: "Focus Corporation",
+    location: "Ariana, Technopôle El Ghazala",
+    description: "Sujet de PFE : Conception d'une plateforme SaaS collaborative temps réel avec Vue.js 3, Express.js et MongoDB. Pré-embauche envisageable.",
+    requirements: "Vue.js, Node.js, Express, MongoDB, Git, Licence ou Mastère en Informatique",
+    url: "https://www.tanitjobs.com/job/stage-pfe-mevn-focus-corp",
+    scraped_at: new Date(Date.now() - 1200000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 96,
+  },
+  {
+    id: "pfe-keejob-1",
+    source_site: "Keejob",
+    job_title: "Stage PFE : Ingénieur Intelligence Artificielle & LLM Gemini",
+    company_name: "InstaDeep Labs",
+    location: "Tunis, Les Berges du Lac / Hybride",
+    description: "Développement d'un agent conversationnel RAG avec Vector Database et Gemini API pour l'analyse automatisée de documents.",
+    requirements: "Python, PyTorch, Gemini API, FastAPI, Docker, Étudiant en cycle d'ingénieur ou mastère",
+    url: "https://www.keejob.com/offres-emploi/stage-pfe-ia-instadeep",
+    scraped_at: new Date(Date.now() - 2400000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 98,
+  },
+  {
+    id: "pfe-linkedin-1",
+    source_site: "LinkedIn Jobs",
+    job_title: "Internship / Stage PFE : Cloud Infrastructure & DevOps Kubernetes",
+    company_name: "Orange Digital Center Tunisie",
+    location: "Tunis, Les Berges du Lac 1",
+    description: "Mise en place de pipelines CI/CD automatisés avec GitHub Actions, conteneurisation Docker et déploiements Kubernetes sur GCP.",
+    requirements: "Docker, Kubernetes, Linux, GitHub Actions, Terraform, Connaissances Cloud",
+    url: "https://www.linkedin.com/jobs/view/stage-pfe-devops-orange-digital",
+    scraped_at: new Date(Date.now() - 3600000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 94,
+  },
+  {
+    id: "pfe-aneti-1",
+    source_site: "Emploi.nat.tn (ANETI)",
+    job_title: "Stage d'Initiation & PFE : Développement Mobile Flutter / Firebase",
+    company_name: "Centre d'Innovation Numérique ANETI",
+    location: "Ben Arous / Mégrine",
+    description: "Stage conventionné convention établissement universitaire. Création d'une application mobile cross-platform avec Flutter.",
+    requirements: "Flutter, Dart, Firebase, REST APIs, Convention de stage obligatoire",
+    url: "http://www.emploi.nat.tn/fo/Fr/stage-pfe-flutter-aneti",
+    scraped_at: new Date(Date.now() - 4800000).toISOString(),
+    category: "Stage / PFE",
+    predicted_chance: 92,
+  },
+  {
+    id: "pfe-option-1",
+    source_site: "Optioncarriere.tn",
+    job_title: "Stage PFE : Développeur Frontend React.js & Next.js 14",
+    company_name: "Talan Tunisie",
+    location: "Tunis, Charguia 2",
+    description: "Refonte de l'interface client d'une banque partenaire avec Next.js App Router, Tailwind CSS et intégration d'APIs REST.",
+    requirements: "React, Next.js, TypeScript, Tailwind CSS, Git, Esprit d'équipe",
+    url: "https://www.optioncarriere.tn/emploi/stage-pfe-react-talan",
+    scraped_at: new Date(Date.now() - 6000000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 95,
+  },
+  {
+    id: "pfe-crit-1",
+    source_site: "CRIT Tunisie",
+    job_title: "Stage PFE : Business Intelligence & Data Pipelines Power BI",
+    company_name: "PwC Tunisie Digital Center",
+    location: "Tunis, Lac 2",
+    description: "Conception de datamarts décisionnels, modélisation relationnelle et tableaux de bord interactifs Power BI.",
+    requirements: "SQL, Power BI, Python, Modélisation de données, Anglais professionnel",
+    url: "https://www.crit-tunisie.net/jobs/stage-pfe-data-pwc",
+    scraped_at: new Date(Date.now() - 7200000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 90,
+  },
+  {
+    id: "pfe-careerjet-1",
+    source_site: "CareerJet",
+    job_title: "Stage PFE : Architectures Microservices Java / Spring Boot 3",
+    company_name: "Sopra HR Software Tunisie",
+    location: "Ariana, Technopôle El Ghazala",
+    description: "Implémentation de microservices sécurisés pour notre suite logicielle de gestion des talents avec Spring Boot et PostgreSQL.",
+    requirements: "Java, Spring Boot, PostgreSQL, Docker, Architecture REST",
+    url: "https://www.careerjet.com.tn/job/stage-pfe-java-sopra-hr",
+    scraped_at: new Date(Date.now() - 8400000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 93,
+  },
+  {
+    id: "pfe-bayt-1",
+    source_site: "Bayt",
+    job_title: "Internship / Stage d'été : UI/UX Design & Prototypage Figma",
+    company_name: "FinTech Carthage Hub",
+    location: "Sfax / Remote",
+    description: "Création de parcours utilisateurs, wireframes et prototypes haute fidélité pour une application mobile de paiement sans contact.",
+    requirements: "Figma, Adobe XD, Principes d'ergonomie mobile, Sens du design",
+    url: "https://www.bayt.com/en/tunisia/jobs/stage-design-carthage",
+    scraped_at: new Date(Date.now() - 9600000).toISOString(),
+    category: "Stage / PFE",
+    predicted_chance: 91,
+  },
+  {
+    id: "pfe-farah-1",
+    source_site: "Farah.tn",
+    job_title: "Stage PFE : Développement Web Nuxt.js & E-Commerce",
+    company_name: "Carthage Web Studio",
+    location: "La Marsa, Tunis",
+    description: "Projet de fin d'études axé sur la création d'une marketplace e-commerce avec Nuxt 3, Tailwind CSS et Stripe/Paymee.",
+    requirements: "Vue.js / Nuxt, JavaScript, HTML/CSS, Git, Motivation",
+    url: "https://www.farah.tn/emploi/stage-pfe-nuxt-marsa",
+    scraped_at: new Date(Date.now() - 10800000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 94,
+  },
+  {
+    id: "pfe-expertini-1",
+    source_site: "Expertini",
+    job_title: "Stage PFE : Cybersécurité & Tests d'Intrusion Web",
+    company_name: "CyberShield Méditerranée",
+    location: "Sousse, Sahloul",
+    description: "Audit de sécurité applicatif (OWASP Top 10), analyse de vulnérabilités et rédaction de rapports de remédiation technique.",
+    requirements: "Linux, OWASP, Réseaux, Python/Bash, Éthique professionnelle",
+    url: "https://tn.expertini.com/jobs/stage-pfe-cybersecurite-sousse",
+    scraped_at: new Date(Date.now() - 12000000).toISOString(),
+    category: "Stage PFE",
+    predicted_chance: 92,
+  },
 ];
 
 // In-memory cache across serverless / hot reload cycles
@@ -372,28 +504,64 @@ declare global {
   var __khadamni_jobs__: StoredJob[] | undefined;
 }
 
+/**
+ * Robust matcher to identify internships and Stage PFE offers
+ * (avoids false positives like 'internationaux' or 'early stage')
+ */
+export function isInternshipJob(j: {
+  category?: string;
+  job_title?: string;
+  jobTitle?: string;
+  description?: string;
+}): boolean {
+  const c = (j.category || "").toLowerCase();
+  const t = (j.job_title || j.jobTitle || "").toLowerCase();
+  const d = (j.description || "").toLowerCase();
+
+  const titleRegex = /\b(stage|pfe|stagiaire|internship|intern)\b/i;
+  const catRegex = /\b(stage|pfe|stagiaire|internship)\b/i;
+  const descRegex = /\b(stage pfe|stage d'été|stage ouvrier|stage de fin d'études|stagiaire|convention de stage|internship)\b/i;
+
+  return titleRegex.test(t) || catRegex.test(c) || descRegex.test(d);
+}
+
 function loadJobsFromDiskOrMemory(): StoredJob[] {
+  let loadedPool: StoredJob[] = [];
   try {
     if (fs.existsSync(CACHE_FILE)) {
       const data = fs.readFileSync(CACHE_FILE, "utf-8");
       const parsed = JSON.parse(data);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        global.__khadamni_jobs__ = parsed;
-        return parsed;
+        loadedPool = parsed;
       }
     }
   } catch (err) {
-    console.warn("[jobStore] Could not read disk cache, initializing with default pool:", err);
+    console.warn("[jobStore] Could not read disk cache:", err);
   }
 
-  if (global.__khadamni_jobs__ && global.__khadamni_jobs__.length > 0) {
-    return global.__khadamni_jobs__;
+  if (loadedPool.length === 0 && global.__khadamni_jobs__ && global.__khadamni_jobs__.length > 0) {
+    loadedPool = global.__khadamni_jobs__;
   }
 
-  // Pre-seed with the diverse 10-portal pool
-  global.__khadamni_jobs__ = [...INITIAL_DIVERSE_JOBS];
-  saveJobsToDisk(global.__khadamni_jobs__);
-  return global.__khadamni_jobs__;
+  // Ensure all INITIAL_DIVERSE_JOBS (including student PFE offers) are merged in
+  const map = new Map<string, StoredJob>();
+  for (const j of loadedPool) {
+    map.set(j.id, j);
+  }
+  let added = false;
+  for (const j of INITIAL_DIVERSE_JOBS) {
+    if (!map.has(j.id)) {
+      map.set(j.id, j);
+      added = true;
+    }
+  }
+
+  const allJobs = Array.from(map.values());
+  if (added || !fs.existsSync(CACHE_FILE)) {
+    saveJobsToDisk(allJobs);
+  }
+  global.__khadamni_jobs__ = allJobs;
+  return allJobs;
 }
 
 function saveJobsToDisk(jobs: StoredJob[]): void {
@@ -480,8 +648,19 @@ export function getScrapedJobs(filters?: {
   search?: string | null;
   location?: string | null;
   category?: string | null;
+  userType?: string | null;
 }): StoredJob[] {
   let jobs = loadJobsFromDiskOrMemory();
+
+  // If Student mode is specified, filter exclusively for internships / Stages PFE
+  if (filters?.userType === "student") {
+    jobs = jobs.filter((j) => isInternshipJob(j));
+  } else if (filters?.userType === "worker") {
+    // If Worker mode is specified, exclude internships unless explicitly asked
+    if (filters?.category !== "stage") {
+      jobs = jobs.filter((j) => !isInternshipJob(j));
+    }
+  }
 
   if (filters?.source && filters.source !== "all") {
     const targetSource = filters.source.toLowerCase().trim();

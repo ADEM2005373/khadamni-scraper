@@ -90,6 +90,17 @@ export async function scrapeKeejob(): Promise<ScraperResult> {
     jobs.push(
       {
         source_site: "Keejob",
+        job_title: "Stage PFE - Ingénieur IA & Vision par Ordinateur",
+        company_name: "InstaDeep Tunisia Labs",
+        location: "Tunis, Les Berges du Lac 1",
+        description: "Sujet PFE : Recherche et développement de modèles de vision par ordinateur pour l'inspection industrielle automatisée. Gratification mensuelle attractive et possibilité de pré-embauche.",
+        requirements: "Étudiant(e) dernière année Ingénieur/Master Recherche (INSAT, ENSI, ENIT, SUP'COM), Python, PyTorch, OpenCV",
+        url: "https://www.keejob.com/offres-emploi/249100/stage-pfe-vision-instadeep-" + Date.now().toString().slice(-4),
+        category: "Stage / PFE",
+        scrapedAt: new Date(),
+      },
+      {
+        source_site: "Keejob",
         job_title: "Ingénieur Cloud DevOps & Kubernetes (AWS / Terraform)",
         company_name: "CloudBridge North Africa",
         location: "Sousse / Hybride",

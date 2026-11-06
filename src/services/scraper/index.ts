@@ -72,13 +72,27 @@ export async function runAllScrapers(): Promise<AggregatedScrapeResult> {
     }
   });
 
-  // Deduplicate by URL
+  // Deduplicate by URL and auto-tag internships (Stages / PFE)
   const seenUrls = new Set<string>();
   const uniqueJobs: ScrapedJobRaw[] = [];
 
   for (const job of rawJobs) {
     if (!seenUrls.has(job.url)) {
       seenUrls.add(job.url);
+      const titleLower = job.job_title.toLowerCase();
+      const descLower = (job.description || "").toLowerCase();
+      if (
+        titleLower.includes("stage") ||
+        titleLower.includes("pfe") ||
+        titleLower.includes("stagiaire") ||
+        titleLower.includes("intern") ||
+        descLower.includes("stage pfe") ||
+        descLower.includes("stage de fin d'études") ||
+        descLower.includes("stage d'été") ||
+        descLower.includes("stagiaire")
+      ) {
+        job.category = "Stage / PFE";
+      }
       uniqueJobs.push(job);
     }
   }

@@ -39,19 +39,26 @@ export async function POST(request: Request) {
         ? "JavaScript, Vue.js, Node.js, Express.js, MongoDB, Next.js, Python, PostgreSQL, Tailwind CSS, Git"
         : "JavaScript, TypeScript, React, Next.js, Node.js, PostgreSQL, Git";
 
+    const isStudent =
+      profile.userType === "student" ||
+      jobTitle.toLowerCase().includes("stage") ||
+      jobTitle.toLowerCase().includes("pfe") ||
+      body.userType === "student";
+
     const prompt = `
-Vous êtes un expert en recrutement et en rédaction de candidatures pour le marché de l'emploi en Tunisie.
-Rédigez une lettre de motivation professionnelle, percutante et hautement personnalisée (${
+Vous êtes un expert en recrutement et en rédaction de candidatures pour le marché de l'emploi et des stages en Tunisie.
+Rédigez une ${isStudent ? "demande de Stage (Stage PFE / Stage d'études conventionné)" : "lettre de motivation pour un emploi"} professionnelle, percutante et hautement personnalisée (${
       language === "en" ? "en anglais" : "en français"
     }).
 
 INFORMATIONS SUR LE CANDIDAT :
 - Nom : ${candidateName}
+- Statut : ${isStudent ? "Étudiant en dernière année (Recherche de Stage PFE / Stage d'études conventionné)" : "Professionnel qualifié"}
 - Compétences clés : ${skillsStr}
 - Profil : Développeur Full-Stack & Systèmes d'Information
 
-INFORMATIONS SUR L'OFFRE D'EMPLOI :
-- Poste : ${jobTitle}
+INFORMATIONS SUR L'OFFRE :
+- Poste / Sujet : ${jobTitle}
 - Entreprise : ${companyName || "Entreprise en Tunisie"}
 - Localisation : ${location || "Tunisie"}
 - Exigences : ${requirements || "Compétences techniques et esprit d'équipe"}
@@ -59,8 +66,12 @@ INFORMATIONS SUR L'OFFRE D'EMPLOI :
 
 CONSIGNES :
 1. Adoptez un ton professionnel, motivé et respectueux des normes de recrutement tunisiennes et internationales.
-2. Mettez en valeur l'adéquation directe entre les compétences du candidat et les exigences du poste.
-3. Mentionnez l'intérêt pour l'entreprise et la disponibilité immédiate (éligibilité aux contrats CIVP / Karama ou CDI selon le cas).
+2. ${
+      isStudent
+        ? "Mettez en avant le cursus universitaire, la passion technologique, la capacité d'apprentissage rapide, l'éligibilité à une convention de stage universitaire et l'objectif d'apporter une réelle valeur ajoutée au projet."
+        : "Mettez en valeur l'adéquation directe entre les compétences du candidat et les exigences du poste (éligibilité aux contrats CIVP / Karama ou CDI)."
+    }
+3. Mentionnez l'intérêt pour l'entreprise et la disponibilité immédiate.
 4. Fournissez une lettre complète structurée avec Objet, Salutations, Corps (3 paragraphes concis) et Formule de politesse.
 5. Ne pas inclure de placeholders comme "[Votre nom]", utilisez directement les informations fournies.
 

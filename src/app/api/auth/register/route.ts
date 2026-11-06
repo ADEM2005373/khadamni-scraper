@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { registerNewUser } from "@/lib/auth";
+import { updateProfileForEmail } from "@/lib/profileStore";
 
 export async function POST(request: Request) {
   try {
-    const { email, password, name } = await request.json();
+    const { email, password, name, userType = "student" } = await request.json();
 
     if (!email || !password || password.length < 6) {
       return NextResponse.json(
@@ -17,9 +18,16 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim();
     const displayName = name || normalizedEmail.split("@")[0];
     const passwordHash = await bcrypt.hash(password, 10);
+    const validUserType: "student" | "worker" = userType === "worker" ? "worker" : "student";
 
     // Save in in-memory registry
-    registerNewUser(normalizedEmail, passwordHash, displayName);
+    registerNewUser(normalizedEmail, passwordHash, displayName, validUserType);
+
+    // Save in clean profile store
+    updateProfileForEmail(normalizedEmail, {
+      firstName: displayName,
+      userType: validUserType,
+    });
 
     // Save in DB if available
     try {
@@ -33,6 +41,7 @@ export async function POST(request: Request) {
             create: {
               firstName: displayName,
               lastName: "",
+              userType: validUserType,
             },
           },
         },

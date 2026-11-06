@@ -33,6 +33,7 @@ export async function GET() {
               portfolioUrl: user.profile.portfolioUrl || "",
               cvFileUrl: user.profile.cvFileUrl || null,
               atsScore: user.profile.atsScore ?? null,
+              userType: (user.profile as any).userType || "student",
             },
           });
         }
@@ -66,7 +67,7 @@ export async function PUT(request: Request) {
     const session = await getServerSession(authOptions);
     const userEmail = session?.user?.email || "ouerhaiadem0805@gmail.com";
     const body = await request.json();
-    const { firstName, lastName, linkedinUrl, githubUrl, portfolioUrl, cvFileUrl, atsScore } = body;
+    const { firstName, lastName, linkedinUrl, githubUrl, portfolioUrl, cvFileUrl, atsScore, userType } = body;
 
     // 1. Update in clean profile store
     const updatedProfile = updateProfileForEmail(userEmail, {
@@ -77,6 +78,7 @@ export async function PUT(request: Request) {
       portfolioUrl: portfolioUrl !== undefined ? portfolioUrl : undefined,
       cvFileUrl: cvFileUrl !== undefined ? cvFileUrl : undefined,
       atsScore: atsScore !== undefined ? atsScore : undefined,
+      userType: userType !== undefined ? userType : undefined,
     });
 
     // 2. Sync to PostgreSQL if database is connected

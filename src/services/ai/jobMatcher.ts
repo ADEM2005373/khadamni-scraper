@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import prisma, { isDatabaseAvailable } from "@/lib/prisma";
-import { getAllJobsForMatcher } from "@/lib/jobStore";
+import { getAllJobsForMatcher, isInternshipJob } from "@/lib/jobStore";
 
 export interface MatchScoreResult {
   jobId: string;
@@ -24,6 +24,7 @@ export interface CandidateProfileContext {
   experienceYears?: number;
   atsScore?: number;
   preferredLocations?: string[];
+  userType?: "student" | "worker";
 }
 
 /**
@@ -178,6 +179,32 @@ export async function getTopCuratedMatches(
         jobUrl: "https://www.tanitjobs.com/job/sysadmin-cloudpulse",
       },
     ];
+    }
+  }
+
+  // If candidate is a student, prioritize and filter exclusively for Stages & PFE offers
+  if (candidateContext.userType === "student") {
+    const studentOffers = jobsList.filter((j) =>
+      isInternshipJob({
+        category: j.category,
+        jobTitle: j.jobTitle,
+        description: j.description,
+      })
+    );
+    if (studentOffers.length > 0) {
+      jobsList = studentOffers;
+    }
+  } else if (candidateContext.userType === "worker") {
+    const workerOffers = jobsList.filter(
+      (j) =>
+        !isInternshipJob({
+          category: j.category,
+          jobTitle: j.jobTitle,
+          description: j.description,
+        })
+    );
+    if (workerOffers.length > 0) {
+      jobsList = workerOffers;
     }
   }
 

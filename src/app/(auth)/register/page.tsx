@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Briefcase, Lock, Mail, User, Loader2, AlertCircle } from "lucide-react";
+import { Briefcase, Lock, Mail, User, Loader2, AlertCircle, GraduationCap } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [userType, setUserType] = useState<"student" | "worker">("student");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -39,6 +40,7 @@ export default function RegisterPage() {
           email: email.trim(),
           password,
           name: name.trim() || undefined,
+          userType,
         }),
       });
 
@@ -92,6 +94,70 @@ export default function RegisterPage() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Persona / Role Selector */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              Vous êtes ?
+            </label>
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setUserType("student")}
+                className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                  userType === "student"
+                    ? "border-red-600 bg-red-50/60 ring-2 ring-red-500/20 shadow-xs"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <GraduationCap
+                    className={`w-4 h-4 ${
+                      userType === "student" ? "text-red-600" : "text-slate-400"
+                    }`}
+                  />
+                  <span
+                    className={`text-xs font-bold ${
+                      userType === "student" ? "text-red-700" : "text-slate-800"
+                    }`}
+                  >
+                    Étudiant
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-tight">
+                  Recherche de <strong>Stage PFE</strong>, d&apos;été ou pré-embauche
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setUserType("worker")}
+                className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                  userType === "worker"
+                    ? "border-red-600 bg-red-50/60 ring-2 ring-red-500/20 shadow-xs"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center gap-1.5 mb-1">
+                  <Briefcase
+                    className={`w-4 h-4 ${
+                      userType === "worker" ? "text-red-600" : "text-slate-400"
+                    }`}
+                  />
+                  <span
+                    className={`text-xs font-bold ${
+                      userType === "worker" ? "text-red-700" : "text-slate-800"
+                    }`}
+                  >
+                    Professionnel
+                  </span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-tight">
+                  Recherche d&apos;emploi direct (CDI, CDD, CIVP, Karama)
+                </p>
+              </button>
+            </div>
+          </div>
+
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" htmlFor="name">
               Nom complet

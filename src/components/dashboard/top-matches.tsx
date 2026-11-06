@@ -34,9 +34,10 @@ export interface MatchJob {
 
 interface TopMatchesProps {
   onApplicationCreated?: () => void;
+  userType?: "student" | "worker";
 }
 
-export function TopMatchesFeed({ onApplicationCreated }: TopMatchesProps) {
+export function TopMatchesFeed({ onApplicationCreated, userType = "student" }: TopMatchesProps) {
   const [matches, setMatches] = useState<MatchJob[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [applyingJobId, setApplyingJobId] = useState<string | null>(null);
@@ -47,7 +48,7 @@ export function TopMatchesFeed({ onApplicationCreated }: TopMatchesProps) {
     async function loadMatches() {
       setIsLoading(true);
       try {
-        const res = await fetch("/api/jobs/top-matches");
+        const res = await fetch(`/api/jobs/top-matches?userType=${encodeURIComponent(userType)}`);
         const data = await res.json();
         if (data.success && data.matches) {
           setMatches(data.matches);
@@ -60,7 +61,7 @@ export function TopMatchesFeed({ onApplicationCreated }: TopMatchesProps) {
     }
 
     loadMatches();
-  }, []);
+  }, [userType]);
 
   const handleApplyAndTrack = async (job: MatchJob) => {
     setApplyingJobId(job.jobId);
@@ -105,13 +106,21 @@ export function TopMatchesFeed({ onApplicationCreated }: TopMatchesProps) {
         <div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100 text-red-700 border border-red-200 mb-1.5">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Algorithme Sémantique & ATS</span>
+            <span>
+              {userType === "student"
+                ? "🎓 Algorithme Stages PFE Recommandés"
+                : "Algorithme Sémantique & ATS"}
+            </span>
           </div>
           <h2 className="text-xl font-black text-slate-900 tracking-tight">
-            Top 10 Curated Matches (Sur-Mesure)
+            {userType === "student"
+              ? "Top 10 Stages PFE & d'Études (Sur-Mesure)"
+              : "Top 10 Curated Matches (Sur-Mesure)"}
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Offres d&apos;emploi tunisiennes présentant la plus forte affinité avec votre profil et CV
+            {userType === "student"
+              ? "Sujets de PFE et stages en Tunisie présentant la plus forte affinité avec votre projet académique"
+              : "Offres d'emploi tunisiennes présentant la plus forte affinité avec votre profil et CV"}
           </p>
         </div>
 
@@ -225,6 +234,7 @@ export function TopMatchesFeed({ onApplicationCreated }: TopMatchesProps) {
 
                   <div className="flex items-center gap-2">
                     <CoverLetterModal
+                      userType={userType}
                       job={{
                         jobTitle: job.jobTitle,
                         companyName: job.companyName,
