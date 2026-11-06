@@ -1,0 +1,103 @@
+import { scrapeTanitJobs } from "./tanitjobs";
+import { scrapeKeejob } from "./keejob";
+import {
+  scrapeLinkedInJobs,
+  scrapeAnetiJobs,
+  scrapeOptionCarriere,
+  scrapeCritTunisie,
+  scrapeCareerJet,
+  scrapeBayt,
+  scrapeFarah,
+  scrapeExpertini,
+} from "./allPortalsScraper";
+import { ScrapedJobRaw, ScraperResult, TUNISIAN_PORTALS, TunisianJobSource } from "./types";
+
+export interface AggregatedScrapeResult {
+  totalJobs: number;
+  uniqueJobs: number;
+  sources: Record<string, ScraperResult>;
+  jobs: ScrapedJobRaw[];
+  executionTimeMs: number;
+}
+
+export async function runAllScrapers(): Promise<AggregatedScrapeResult> {
+  const startTime = Date.now();
+  console.log("[ScraperEngine] Launching multi-portal scraping sequence for all 10 Tunisian job boards...");
+
+  // Execute all 10 scrapers in parallel with safe error isolation
+  const results = await Promise.allSettled([
+    scrapeTanitJobs(),
+    scrapeLinkedInJobs(),
+    scrapeKeejob(),
+    scrapeAnetiJobs(),
+    scrapeOptionCarriere(),
+    scrapeCritTunisie(),
+    scrapeCareerJet(),
+    scrapeBayt(),
+    scrapeFarah(),
+    scrapeExpertini(),
+  ]);
+
+  const sourcesRecord: Record<string, ScraperResult> = {};
+  const rawJobs: ScrapedJobRaw[] = [];
+
+  const portalKeys = [
+    "TanitJobs",
+    "LinkedIn Jobs",
+    "Keejob",
+    "Emploi.nat.tn (ANETI)",
+    "Optioncarriere.tn",
+    "CRIT Tunisie",
+    "CareerJet",
+    "Bayt",
+    "Farah.tn",
+    "Expertini",
+  ];
+
+  results.forEach((res, index) => {
+    const portalName = portalKeys[index];
+    if (res.status === "fulfilled") {
+      sourcesRecord[portalName] = res.value;
+      rawJobs.push(...res.value.jobs);
+    } else {
+      console.error(`[ScraperEngine] Error on ${portalName}:`, res.reason);
+      sourcesRecord[portalName] = {
+        source: portalName,
+        success: false,
+        jobsFound: 0,
+        jobs: [],
+        errors: [res.reason?.message || "Unknown error"],
+        executionTimeMs: 0,
+      };
+    }
+  });
+
+  // Deduplicate by URL
+  const seenUrls = new Set<string>();
+  const uniqueJobs: ScrapedJobRaw[] = [];
+
+  for (const job of rawJobs) {
+    if (!seenUrls.has(job.url)) {
+      seenUrls.add(job.url);
+      uniqueJobs.push(job);
+    }
+  }
+
+  console.log(
+    `[ScraperEngine] Scraping complete across 10 portals: ${rawJobs.length} raw jobs collected, ${uniqueJobs.length} unique in ${Date.now() - startTime}ms`
+  );
+
+  return {
+    totalJobs: rawJobs.length,
+    uniqueJobs: uniqueJobs.length,
+    sources: sourcesRecord,
+    jobs: uniqueJobs,
+    executionTimeMs: Date.now() - startTime,
+  };
+}
+
+export * from "./types";
+export * from "./tanitjobs";
+export * from "./keejob";
+export * from "./allPortalsScraper";
+export * from "./userAgentRotator";

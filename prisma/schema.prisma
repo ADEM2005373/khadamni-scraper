@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String            @id @default(uuid())
+  email        String            @unique
+  passwordHash String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  profile      Profile?
+  applications UserApplication[]
+
+  @@map("users")
+}
+
+model Profile {
+  id           String    @id @default(uuid())
+  userId       String    @unique
+  firstName    String
+  lastName     String
+  linkedinUrl  String?
+  githubUrl    String?
+  portfolioUrl String?
+  cvFileUrl    String?
+  atsScore     Float?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model ScrapedJob {
+  id           String            @id @default(uuid())
+  sourceSite   String            // e.g. "TanitJobs", "Keejob"
+  jobTitle     String
+  companyName  String
+  location     String
+  description  String            @db.Text
+  requirements String?           @db.Text
+  jobUrl       String            @unique
+  category     String            @default("Full-Time") // Full-Time, Internship, etc.
+  scrapedAt    DateTime          @default(now())
+
+  applications UserApplication[]
+
+  @@index([sourceSite])
+  @@index([location])
+  @@map("scraped_jobs")
+}
+
+model UserApplication {
+  id              String      @id @default(uuid())
+  userId          String
+  jobId           String
+  status          String      @default("Applied") // "Applied", "Interviewing", "Rejected", "Offered"
+  predictedChance Float?
+  appliedAt       DateTime    @default(now())
+
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job             ScrapedJob  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId])
+  @@index([jobId])
+  @@map("user_applications")
+}
