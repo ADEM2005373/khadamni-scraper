@@ -3,7 +3,12 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { forecastApplicationSuccessWithGemini } from "@/services/ai/jobMatcher";
-import { getApplicationsForEmail, addApplication, StoredApplication } from "@/lib/applicationStore";
+import {
+  getApplicationsForEmail,
+  addApplication,
+  updateApplicationStatus,
+  StoredApplication,
+} from "@/lib/applicationStore";
 
 export const dynamic = "force-dynamic";
 
@@ -176,6 +181,42 @@ export async function POST(request: Request) {
     console.error("[Applications POST Fatal]:", error);
     return NextResponse.json(
       { success: false, error: "Erreur lors de l'enregistrement de la candidature." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const { id, status } = await request.json();
+    if (!id || !status) {
+      return NextResponse.json(
+        { success: false, error: "ID de candidature et statut requis." },
+        { status: 400 }
+      );
+    }
+
+    const updated = updateApplicationStatus(id, status);
+
+    // Also update in PostgreSQL if present
+    try {
+      await prisma.userApplication.update({
+        where: { id },
+        data: { status },
+      });
+    } catch {
+      // Offline fallback
+    }
+
+    return NextResponse.json({
+      success: true,
+      application: updated,
+      message: "Statut de la candidature mis à jour avec succès.",
+    });
+  } catch (error) {
+    console.error("[Applications PATCH Error]:", error);
+    return NextResponse.json(
+      { success: false, error: "Erreur lors de la mise à jour du statut." },
       { status: 500 }
     );
   }

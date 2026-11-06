@@ -51,3 +51,12 @@ export function addApplication(app: StoredApplication): StoredApplication {
   inMemoryApplications.unshift(app);
   return app;
 }
+
+export function updateApplicationStatus(id: string, status: string): StoredApplication | null {
+  const app = inMemoryApplications.find((a) => a.id === id);
+  if (app) {
+    app.status = status;
+    return app;
+  }
+  return null;
+}

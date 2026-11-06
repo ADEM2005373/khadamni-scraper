@@ -59,6 +59,21 @@ export function ApplicationTrackerPanel() {
     }
   };
 
+  const handleUpdateStatus = async (appId: string, newStatus: string) => {
+    try {
+      setApplications((prev) =>
+        prev.map((a) => (a.id === appId ? { ...a, status: newStatus } : a))
+      );
+      await fetch("/api/applications", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: appId, status: newStatus }),
+      });
+    } catch (err) {
+      console.error("Failed to update status:", err);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Offered":
@@ -146,6 +161,21 @@ export function ApplicationTrackerPanel() {
                           <MapPin className="w-3.5 h-3.5 text-slate-400" />
                           {app.job?.location || "Tunis"}
                         </span>
+                      </div>
+
+                      {/* Interactive Stage Selector */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <span className="text-[10px] text-slate-400 font-semibold">Étape :</span>
+                        <select
+                          value={app.status}
+                          onChange={(e) => handleUpdateStatus(app.id, e.target.value)}
+                          className="text-[11px] font-bold py-1 px-2.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 transition-colors focus:outline-hidden focus:ring-1 focus:ring-purple-500 cursor-pointer"
+                        >
+                          <option value="Applied">✉️ Candidature Transmise</option>
+                          <option value="Interviewing">🎙️ Entretien en Cours</option>
+                          <option value="Offered">🎉 Offre Reçue</option>
+                          <option value="Rejected">❌ Non Retenu</option>
+                        </select>
                       </div>
                     </div>
 
