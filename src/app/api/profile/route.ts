@@ -11,7 +11,37 @@ export async function GET() {
     const session = await getServerSession(authOptions);
     const userEmail = session?.user?.email || "ouerhaiadem0805@gmail.com";
 
-    // 1. Try PostgreSQL lookup if available
+    // 1. Try MongoDB lookup if available
+    try {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        const profileDoc = await db.collection("profiles").findOne({ email: userEmail });
+        if (profileDoc) {
+          return NextResponse.json({
+            success: true,
+            source: "mongodb",
+            profile: {
+              id: profileDoc._id ? profileDoc._id.toString() : profileDoc.id,
+              userId: profileDoc.userId || "",
+              email: profileDoc.email || userEmail,
+              firstName: profileDoc.firstName || "",
+              lastName: profileDoc.lastName || "",
+              linkedinUrl: profileDoc.linkedinUrl || "",
+              githubUrl: profileDoc.githubUrl || "",
+              portfolioUrl: profileDoc.portfolioUrl || "",
+              cvFileUrl: profileDoc.cvFileUrl || null,
+              atsScore: profileDoc.atsScore ?? null,
+              userType: profileDoc.userType || "student",
+            },
+          });
+        }
+      }
+    } catch (mErr: any) {
+      console.warn("[Profile API GET] MongoDB note:", mErr?.message);
+    }
+
+    // 2. Try PostgreSQL lookup if available
     if (await isDatabaseAvailable()) {
       try {
         const user = await prisma.user.findUnique({
@@ -81,7 +111,38 @@ export async function PUT(request: Request) {
       userType: userType !== undefined ? userType : undefined,
     });
 
-    // 2. Sync to PostgreSQL if database is connected
+    // 2. Sync to MongoDB if available
+    try {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        await db.collection("profiles").updateOne(
+          { email: userEmail },
+          {
+            $set: {
+              email: userEmail,
+              firstName: updatedProfile.firstName,
+              lastName: updatedProfile.lastName,
+              linkedinUrl: updatedProfile.linkedinUrl,
+              githubUrl: updatedProfile.githubUrl,
+              portfolioUrl: updatedProfile.portfolioUrl,
+              cvFileUrl: updatedProfile.cvFileUrl,
+              atsScore: updatedProfile.atsScore,
+              userType: updatedProfile.userType,
+              updatedAt: new Date(),
+            },
+            $setOnInsert: {
+              createdAt: new Date(),
+            },
+          },
+          { upsert: true }
+        );
+      }
+    } catch (mErr: any) {
+      console.warn("[Profile API PUT] MongoDB sync note:", mErr?.message);
+    }
+
+    // 3. Sync to legacy PostgreSQL if connected
     if (await isDatabaseAvailable()) {
       try {
         let user = await prisma.user.findUnique({

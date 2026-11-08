@@ -39,9 +39,37 @@ export async function getTopCuratedMatches(
       ? candidateContext.skills.map((s) => s.toLowerCase().trim())
       : ["next.js", "react", "typescript", "node.js", "postgresql", "docker", "tailwind css", "git"];
 
-  // 1. Fetch available jobs from PostgreSQL (or fallback to diverse curated set from jobStore)
+  // 1. Fetch available jobs from MongoDB (or fallback to diverse curated set from jobStore)
   let jobsList: any[] = [];
-  if (await isDatabaseAvailable()) {
+  try {
+    const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+    if (await isMongoAvailable()) {
+      const db = await getDb();
+      const docs = await db.collection("jobs").find().sort({ scraped_at: -1 }).limit(80).toArray();
+      if (docs && docs.length > 0) {
+        jobsList = docs.map((j: any) => ({
+          id: j._id ? j._id.toString() : j.id,
+          jobTitle: j.job_title || j.title,
+          companyName: j.company_name || j.company,
+          location:
+            typeof j.location === "object"
+              ? `${j.location?.city || ""}, ${j.location?.country || ""}`
+              : j.location,
+          sourceSite: j.source_site || j.source || "TanitJobs",
+          category: j.category || j.contractType || "Full-Time",
+          description: j.description || "",
+          requirements:
+            j.requirements || (Array.isArray(j.skills) ? j.skills.join(", ") : ""),
+          jobUrl: j.url || j.sourceUrl || "#",
+        }));
+      }
+    }
+  } catch (mErr: any) {
+    console.warn("[JobMatcher] MongoDB note:", mErr?.message);
+  }
+
+  // Fallback to legacy PostgreSQL if MongoDB yielded 0 jobs
+  if (jobsList.length === 0 && (await isDatabaseAvailable())) {
     try {
       jobsList = await prisma.scrapedJob.findMany({
         orderBy: { scrapedAt: "desc" },

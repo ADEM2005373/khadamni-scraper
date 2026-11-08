@@ -80,7 +80,39 @@ export const authOptions: AuthOptions = {
           } as any;
         }
 
-        // 2. Check PostgreSQL database if connected
+        // 2. Check MongoDB users collection
+        try {
+          const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+          if (await isMongoAvailable()) {
+            const db = await getDb();
+            const mongoUser = await db.collection("users").findOne({ email });
+            if (mongoUser) {
+              const isMatch = await bcrypt.compare(password, mongoUser.passwordHash);
+              if (!isMatch) {
+                throw new Error("Mot de passe incorrect.");
+              }
+              const mongoProfile = await db
+                .collection("profiles")
+                .findOne({ $or: [{ userId: mongoUser._id.toString() }, { email }] });
+
+              const fullName = mongoProfile
+                ? `${mongoProfile.firstName || ""} ${mongoProfile.lastName || ""}`.trim()
+                : email.split("@")[0];
+
+              return {
+                id: mongoUser._id.toString(),
+                email: mongoUser.email,
+                name: fullName || email.split("@")[0],
+                userType: mongoProfile?.userType || "student",
+              } as any;
+            }
+          }
+        } catch (mErr: any) {
+          if (mErr.message === "Mot de passe incorrect.") throw mErr;
+          console.warn("[Auth Note] MongoDB auth check:", mErr?.message);
+        }
+
+        // 3. Fallback check to PostgreSQL database if connected
         if (await isDatabaseAvailable()) {
           try {
             const dbUser = await prisma.user.findUnique({

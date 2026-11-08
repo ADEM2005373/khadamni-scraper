@@ -38,7 +38,16 @@ async function main() {
     const cachedCount = saveScrapedJobs(results.jobs);
     console.log(`Synced to JobStore  : ${cachedCount} offers`);
 
-    // 3. Sync to PostgreSQL if database connection is live
+    // 3. Persist to MongoDB NoSQL Database
+    const { syncJobsToMongo } = await import("../src/lib/jobStore");
+    const mongoRes = await syncJobsToMongo(results.jobs);
+    if (mongoRes.saved > 0) {
+      console.log(`Synced to MongoDB   : ${mongoRes.saved} offers (NoSQL Collection 'jobs')`);
+    } else {
+      console.log(`MongoDB status      : In-sync / Local`);
+    }
+
+    // 4. Sync to legacy PostgreSQL if database connection is live
     if (await isDatabaseAvailable()) {
       let dbSaved = 0;
       let dbFailed = 0;

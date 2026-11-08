@@ -30,19 +30,21 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const range = searchParams.get("range") || "14d"; // "7d", "14d", "30d"
 
-    // 1. Compute real metrics from persistent jobStore or DB
+    // 1. Compute real metrics from MongoDB or persistent jobStore
     const allStoredJobs = getScrapedJobs();
     let totalJobsCount = allStoredJobs.length;
 
-    if (await isDatabaseAvailable()) {
-      try {
-        const dbJobCount = await prisma.scrapedJob.count();
-        if (dbJobCount > totalJobsCount) {
-          totalJobsCount = dbJobCount;
+    try {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        const mongoCount = await db.collection("jobs").countDocuments();
+        if (mongoCount > totalJobsCount) {
+          totalJobsCount = mongoCount;
         }
-      } catch {
-        // offline fallback
       }
+    } catch {
+      // offline fallback
     }
 
     // Real user applications count

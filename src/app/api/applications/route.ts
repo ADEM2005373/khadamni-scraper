@@ -17,7 +17,46 @@ export async function GET() {
     const session = await getServerSession(authOptions);
     const userEmail = session?.user?.email || "ouerhaiadem0805@gmail.com";
 
-    // 1. Try DB lookup if connected
+    // 1. Try MongoDB lookup if available
+    try {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        const mongoApps = await db
+          .collection("user_applications")
+          .find({ userEmail })
+          .sort({ appliedAt: -1 })
+          .toArray();
+
+        if (mongoApps && mongoApps.length > 0) {
+          return NextResponse.json({
+            success: true,
+            source: "mongodb",
+            applications: mongoApps.map((a: any) => ({
+              id: a.id || (a._id ? a._id.toString() : String(Math.random())),
+              userId: a.userId || "user_default",
+              userEmail: a.userEmail || userEmail,
+              jobId: a.jobId,
+              status: a.status || "Applied",
+              predictedChance: a.predictedChance || 84,
+              appliedAt: a.appliedAt ? new Date(a.appliedAt).toISOString() : new Date().toISOString(),
+              job: a.job || {
+                jobTitle: a.jobTitle || "Poste Tech",
+                companyName: a.companyName || "Entreprise",
+                location: a.location || "Tunisie",
+                sourceSite: a.sourceSite || "TanitJobs",
+                category: a.category || "CDI",
+                url: a.url || "#",
+              },
+            })),
+          });
+        }
+      }
+    } catch (mErr: any) {
+      console.warn("[Applications GET] MongoDB note:", mErr?.message);
+    }
+
+    // 2. Try legacy Prisma lookup if connected
     try {
       const user = await prisma.user.findUnique({
         where: { email: userEmail },
@@ -110,7 +149,28 @@ export async function POST(request: Request) {
     // Save in clean application store
     const storedApp = addApplication(newApplication);
 
-    // 2. Persist in database if connected
+    // 2. Persist in MongoDB if available
+    try {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        await db.collection("user_applications").updateOne(
+          { id: newApplication.id },
+          {
+            $set: {
+              ...newApplication,
+              appliedAt: new Date(),
+              updatedAt: new Date(),
+            },
+          },
+          { upsert: true }
+        );
+      }
+    } catch (mErr: any) {
+      console.warn("[Applications POST] MongoDB sync note:", mErr?.message);
+    }
+
+    // 3. Persist in legacy database if connected
     try {
       let user = await prisma.user.findUnique({ where: { email: userEmail } });
       if (!user) {
@@ -197,6 +257,20 @@ export async function PATCH(request: Request) {
     }
 
     const updated = updateApplicationStatus(id, status);
+
+    // Update in MongoDB if present
+    try {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        await db.collection("user_applications").updateOne(
+          { id },
+          { $set: { status, updatedAt: new Date() } }
+        );
+      }
+    } catch (mErr: any) {
+      console.warn("[Applications PATCH] MongoDB note:", mErr?.message);
+    }
 
     // Also update in PostgreSQL if present
     try {

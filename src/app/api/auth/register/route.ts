@@ -29,26 +29,54 @@ export async function POST(request: Request) {
       userType: validUserType,
     });
 
-    // Save in DB if available
+    // 3. Save in MongoDB if available
     try {
-      await prisma.user.upsert({
-        where: { email: normalizedEmail },
-        update: { passwordHash },
-        create: {
-          email: normalizedEmail,
-          passwordHash,
-          profile: {
-            create: {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        const userRes = await db.collection("users").findOneAndUpdate(
+          { email: normalizedEmail },
+          {
+            $set: {
+              email: normalizedEmail,
+              passwordHash,
+              role: "candidate",
+              updatedAt: new Date(),
+            },
+            $setOnInsert: {
+              createdAt: new Date(),
+            },
+          },
+          { upsert: true, returnDocument: "after" }
+        );
+
+        const userId = userRes?._id ? userRes._id.toString() : `user_${Date.now()}`;
+
+        await db.collection("profiles").updateOne(
+          { email: normalizedEmail },
+          {
+            $set: {
+              userId,
+              email: normalizedEmail,
               firstName: displayName,
               lastName: "",
               userType: validUserType,
+              updatedAt: new Date(),
+            },
+            $setOnInsert: {
+              createdAt: new Date(),
+              atsScore: null,
+              cvFileUrl: null,
             },
           },
-        },
-      });
-    } catch {
-      // Offline fallback
+          { upsert: true }
+        );
+      }
+    } catch (mErr: any) {
+      console.warn("[Register API Note] MongoDB sync:", mErr?.message);
     }
+
+    // 4. Save in legacy Prisma DB if available
 
     return NextResponse.json({
       success: true,

@@ -38,7 +38,18 @@ async function handleScraperExecution() {
     const storedCount = saveScrapedJobs(scrapeResults.jobs);
     logs.push(`[JobStore] ${storedCount} offres synchronisées avec succès dans le cache persistant.`);
 
-    // 3. Upsert into PostgreSQL via Prisma if database is available
+    // 3. Bulk upsert into MongoDB 'jobs' collection
+    try {
+      const { syncJobsToMongo } = await import("@/lib/jobStore");
+      const mongoResult = await syncJobsToMongo(scrapeResults.jobs);
+      if (mongoResult.saved > 0) {
+        logs.push(`[MongoDB] ${mongoResult.saved} offres indexées en masse avec succès dans MongoDB.`);
+      }
+    } catch (mErr: any) {
+      console.warn("[Scraper MongoDB Sync Note]:", mErr?.message);
+    }
+
+    // 4. Upsert into legacy PostgreSQL via Prisma if database is available
     let savedCount = 0;
     let failedCount = 0;
 

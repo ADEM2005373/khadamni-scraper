@@ -637,7 +637,81 @@ export function saveScrapedJobs(newJobs: ScrapedJobRaw[]): number {
   global.__khadamni_jobs__ = updatedList;
   saveJobsToDisk(updatedList);
 
+  // Background async sync to MongoDB (non-blocking)
+  syncJobsToMongo(updatedList).catch((err) => {
+    console.warn("[jobStore] Non-blocking Mongo sync warn:", err?.message);
+  });
+
   return addedOrUpdated;
+}
+
+/**
+ * Bulk upserts jobs into MongoDB 'jobs' collection using high-performance bulkWrite
+ */
+export async function syncJobsToMongo(
+  jobs: (StoredJob | ScrapedJobRaw)[]
+): Promise<{ saved: number; failed: number }> {
+  try {
+    const { getDb, isMongoAvailable } = await import("./mongodb");
+    if (!(await isMongoAvailable())) {
+      return { saved: 0, failed: 0 };
+    }
+
+    const db = await getDb();
+    const collection = db.collection("jobs");
+    const crypto = await import("crypto");
+
+    const operations = jobs.map((j) => {
+      const url = j.url;
+      const jobTitle = "job_title" in j ? j.job_title : (j as any).jobTitle;
+      const companyName = "company_name" in j ? j.company_name : (j as any).companyName;
+      const sourceSite = "source_site" in j ? j.source_site : (j as any).sourceSite;
+      const scrapedAt =
+        "scraped_at" in j
+          ? new Date(j.scraped_at)
+          : "scrapedAt" in j
+          ? new Date(j.scrapedAt)
+          : new Date();
+
+      const dedupHash = crypto
+        .createHash("sha256")
+        .update(url || `${jobTitle}:::${companyName}`)
+        .digest("hex");
+
+      return {
+        updateOne: {
+          filter: { url },
+          update: {
+            $set: {
+              job_title: jobTitle,
+              company_name: companyName,
+              location: j.location,
+              description: j.description,
+              requirements: j.requirements || null,
+              source_site: sourceSite,
+              category: j.category || "Full-Time",
+              url,
+              sourceUrl: url,
+              dedupHash,
+              predicted_chance: "predicted_chance" in j ? j.predicted_chance : 85,
+              scraped_at: scrapedAt,
+              updatedAt: new Date(),
+            },
+          },
+          upsert: true,
+        },
+      };
+    });
+
+    if (operations.length > 0) {
+      const result = await collection.bulkWrite(operations, { ordered: false });
+      const saved = (result.upsertedCount || 0) + (result.modifiedCount || 0);
+      return { saved, failed: 0 };
+    }
+  } catch (err: any) {
+    console.warn("[MongoDB syncJobsToMongo Warn]:", err?.message);
+  }
+  return { saved: 0, failed: 0 };
 }
 
 /**
