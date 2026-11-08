@@ -40,10 +40,11 @@ export async function POST(request: Request) {
         : "JavaScript, TypeScript, React, Next.js, Node.js, PostgreSQL, Git";
 
     const isStudent =
-      profile.userType === "student" ||
-      jobTitle.toLowerCase().includes("stage") ||
-      jobTitle.toLowerCase().includes("pfe") ||
-      body.userType === "student";
+      body.userType === "student" ||
+      (body.userType !== "worker" &&
+        profile.userType !== "worker" &&
+        (profile.userType === "student" ||
+          /\b(stage|pfe|stagiaire|internship|intern)\b/i.test(jobTitle)));
 
     const prompt = `
 Vous êtes un expert en recrutement et en rédaction de candidatures pour le marché de l'emploi et des stages en Tunisie.

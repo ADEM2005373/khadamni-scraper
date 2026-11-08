@@ -29,13 +29,14 @@ export async function GET(request: Request) {
         if (userType === "student") {
           query.$or = [
             { category: { $regex: /stage|pfe|intern/i } },
-            { job_title: { $regex: /\b(stage|pfe|stagiaire|intern)\b/i } },
+            { job_title: { $regex: /\b(stage|pfe|stagiaire|internship|intern)\b/i } },
             { description: { $regex: /stage pfe|stage d'été|stage ouvrier|stage de fin d'études/i } },
           ];
-        } else if (userType === "worker" && category !== "stage") {
+        } else if (userType === "worker") {
           query.$and = [
-            { category: { $not: { $regex: /stage|pfe/i } } },
-            { job_title: { $not: { $regex: /\b(stage pfe)\b/i } } },
+            { category: { $not: { $regex: /stage|pfe|intern/i } } },
+            { job_title: { $not: { $regex: /\b(stage|pfe|stagiaire|internship|intern)\b/i } } },
+            { description: { $not: { $regex: /stage pfe|stage d'été|stage ouvrier|stage de fin d'études/i } } },
           ];
         }
 

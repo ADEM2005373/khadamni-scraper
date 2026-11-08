@@ -15,11 +15,30 @@ export async function GET(request: Request) {
     const profile = getProfileForEmail(userEmail);
     const { searchParams } = new URL(request.url);
     const paramUserType = searchParams.get("userType");
-    const userType: "student" | "worker" =
+    let userType: "student" | "worker" =
       paramUserType === "worker" || profile.userType === "worker" ? "worker" : "student";
 
     const candidateSkills: string[] = ["Next.js", "React", "TypeScript", "Node.js", "PostgreSQL", "Docker", "Tailwind CSS"];
-    const atsScore = profile.atsScore !== null ? Math.round(profile.atsScore) : undefined;
+    let atsScore = profile.atsScore !== null ? Math.round(profile.atsScore) : undefined;
+
+    // Check MongoDB profile first
+    try {
+      const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+      if (await isMongoAvailable()) {
+        const db = await getDb();
+        const mongoProfile = await db.collection("profiles").findOne({ email: userEmail });
+        if (mongoProfile) {
+          if (mongoProfile.userType === "worker" || paramUserType === "worker") {
+            userType = "worker";
+          } else if (mongoProfile.userType === "student") {
+            userType = "student";
+          }
+          if (mongoProfile.atsScore) atsScore = Math.round(mongoProfile.atsScore);
+        }
+      }
+    } catch {
+      // offline fallback
+    }
 
     // Check DB profile if available
     try {

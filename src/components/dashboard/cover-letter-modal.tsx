@@ -43,9 +43,8 @@ export function CoverLetterModal({
 
   const isStage =
     userType === "student" ||
-    job.jobTitle.toLowerCase().includes("stage") ||
-    job.jobTitle.toLowerCase().includes("pfe") ||
-    job.jobTitle.toLowerCase().includes("intern");
+    (userType !== "worker" &&
+      /\b(stage|pfe|stagiaire|internship|intern)\b/i.test(job.jobTitle));
 
   const generateLetter = async (lang: "fr" | "en" = language) => {
     setIsLoading(true);

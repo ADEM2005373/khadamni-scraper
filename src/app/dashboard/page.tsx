@@ -194,35 +194,24 @@ export default function DashboardPage() {
           </div>
 
           <nav className="flex items-center gap-3 sm:gap-5">
-            {/* Persona Switcher Toggle (Student ⇄ Worker) */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
-              <button
-                type="button"
-                onClick={() => handleToggleUserType("student")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  userType === "student"
-                    ? "bg-purple-600 text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-                title="Mode Étudiant : Afficher les stages PFE, stages d'été et stages ouvrier"
+            {/* Account Persona Badge */}
+            {userType === "worker" ? (
+              <div
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold shadow-xs"
+                title="Compte Professionnel : Recherche active d'emploi en Tunisie (CDI, CIVP, Karama)"
               >
-                <GraduationCap className="w-3.5 h-3.5" />
-                <span>Étudiant (Stages)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleToggleUserType("worker")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
-                  userType === "worker"
-                    ? "bg-red-600 text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-                title="Mode Travailleur : Afficher les emplois, CDI, CIVP et postes professionnels"
+                <Briefcase className="w-3.5 h-3.5 text-red-600" />
+                <span>Compte Professionnel</span>
+              </div>
+            ) : (
+              <div
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 text-xs font-bold shadow-xs"
+                title="Compte Étudiant : Recherche active de stages PFE, stages d'été et pré-embauche"
               >
-                <Briefcase className="w-3.5 h-3.5" />
-                <span>Professionnel</span>
-              </button>
-            </div>
+                <GraduationCap className="w-3.5 h-3.5 text-purple-600" />
+                <span>Compte Étudiant (Stages PFE)</span>
+              </div>
+            )}
 
             <Link href="/dashboard" className="text-xs font-bold text-red-600 border-b-2 border-red-600 pb-1">
               Dashboard & Offres
@@ -639,16 +628,18 @@ export default function DashboardPage() {
                   >
                     Karama
                   </button>
-                  <button
-                    onClick={() => setCategoryFilter("stage")}
-                    className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
-                      categoryFilter === "stage"
-                        ? "bg-purple-600 text-white"
-                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    Stage / PFE
-                  </button>
+                  {userType === "student" && (
+                    <button
+                      onClick={() => setCategoryFilter("stage")}
+                      className={`px-2.5 py-1 rounded-md font-bold transition-all shrink-0 ${
+                        categoryFilter === "stage"
+                          ? "bg-purple-600 text-white"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      Stage / PFE
+                    </button>
+                  )}
                 </div>
               </div>
             </div>

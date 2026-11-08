@@ -730,10 +730,8 @@ export function getScrapedJobs(filters?: {
   if (filters?.userType === "student") {
     jobs = jobs.filter((j) => isInternshipJob(j));
   } else if (filters?.userType === "worker") {
-    // If Worker mode is specified, exclude internships unless explicitly asked
-    if (filters?.category !== "stage") {
-      jobs = jobs.filter((j) => !isInternshipJob(j));
-    }
+    // Professional account: strictly exclude all internships / stages
+    jobs = jobs.filter((j) => !isInternshipJob(j));
   }
 
   if (filters?.source && filters.source !== "all") {
