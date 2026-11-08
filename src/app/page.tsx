@@ -52,11 +52,11 @@ export default function HomePage() {
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
-                href="/dashboard"
+                href="/jobs"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-base border border-slate-200 shadow-sm transition-all"
               >
                 <Briefcase className="w-5 h-5 text-slate-500" />
-                <span>Explore Jobs (Live)</span>
+                <span>Explorer les Offres (Live)</span>
               </Link>
             </div>
 

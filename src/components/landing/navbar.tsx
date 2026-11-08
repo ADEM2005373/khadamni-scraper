@@ -37,7 +37,7 @@ export function LandingNavbar() {
           <Link href="#how-it-works" className="hover:text-red-600 transition-colors">
             Comment ça marche
           </Link>
-          <Link href="/dashboard" className="hover:text-red-600 transition-colors flex items-center gap-1">
+          <Link href="/jobs" className="hover:text-red-600 transition-colors flex items-center gap-1">
             <span>Explorer les Offres</span>
             <span className="inline-block px-1.5 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full">
               LIVE
@@ -98,6 +98,16 @@ export function LandingNavbar() {
               className="py-1 hover:text-red-600"
             >
               Comment ça marche
+            </Link>
+            <Link
+              href="/jobs"
+              onClick={() => setMobileMenuOpen(false)}
+              className="py-1 hover:text-red-600 font-semibold text-red-600 flex items-center justify-between"
+            >
+              <span>Explorer les Offres</span>
+              <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-100 text-red-700 rounded-full">
+                LIVE
+              </span>
             </Link>
             <Link
               href="/dashboard"

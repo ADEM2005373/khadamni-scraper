@@ -41,8 +41,13 @@ export function LandingFooter() {
                 </Link>
               </li>
               <li>
-                <Link href="#live-preview" className="hover:text-white transition-colors">
-                  Flux TanitJobs & Keejob
+                <Link href="/jobs" className="hover:text-white transition-colors text-red-400 font-semibold">
+                  Toutes les Offres (220+)
+                </Link>
+              </li>
+              <li>
+                <Link href="/jobs" className="hover:text-white transition-colors">
+                  Flux TanitJobs & 10 Portails
                 </Link>
               </li>
               <li>
