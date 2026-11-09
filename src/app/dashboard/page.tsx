@@ -223,6 +223,21 @@ export default function DashboardPage() {
               Mon Profil & CV ATS
             </Link>
 
+            {/* Admin / Owner Portal Direct Access */}
+            {((session?.user as any)?.role === "admin" ||
+              ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(
+                session?.user?.email?.toLowerCase().trim() || ""
+              )) && (
+              <Link
+                href="/admin"
+                className="text-xs font-bold px-2.5 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-300 flex items-center gap-1 hover:bg-amber-100 transition-all shadow-xs"
+                title="Accéder à la console d'administration et au centre de contrôle des scrapers"
+              >
+                <span>👑</span>
+                <span>Espace Admin</span>
+              </Link>
+            )}
+
             <div className="flex items-center gap-3 pl-2 border-l border-slate-200">
               <div className="hidden sm:flex flex-col text-right">
                 <span className="text-xs font-bold text-slate-800">

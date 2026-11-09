@@ -9,16 +9,26 @@ export interface RegisteredUser {
   passwordHash: string;
   name: string;
   userType?: "student" | "worker";
+  role?: "admin" | "candidate";
 }
 
-// In-memory user registry containing the default seeded account with secure bcrypt hash
+// In-memory user registry containing default owner accounts with secure bcrypt hash
 export const registeredUsers: RegisteredUser[] = [
   {
     id: "user-adem-0805",
     email: "ouerhaiadem0805@gmail.com",
     passwordHash: "$2a$10$.OveQhg3.zeX.xh6GkZfBOIM93B4SqlElqJHdXl0yznt0GDDnSSQK",
-    name: "Adem Ouerhai",
+    name: "Adem Ouerhani",
     userType: "student",
+    role: "admin",
+  },
+  {
+    id: "user-adem-worker",
+    email: "adem@khadamni.com",
+    passwordHash: "$2a$10$.OveQhg3.zeX.xh6GkZfBOIM93B4SqlElqJHdXl0yznt0GDDnSSQK",
+    name: "Adem Ouerhani",
+    userType: "worker",
+    role: "admin",
   },
 ];
 
@@ -99,11 +109,15 @@ export const authOptions: AuthOptions = {
                 ? `${mongoProfile.firstName || ""} ${mongoProfile.lastName || ""}`.trim()
                 : email.split("@")[0];
 
+              const isOwner = ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(mongoUser.email.toLowerCase().trim());
+              const role = mongoUser.role || (isOwner ? "admin" : "candidate");
+
               return {
                 id: mongoUser._id.toString(),
                 email: mongoUser.email,
                 name: fullName || email.split("@")[0],
                 userType: mongoProfile?.userType || "student",
+                role,
               } as any;
             }
           }
@@ -124,11 +138,13 @@ export const authOptions: AuthOptions = {
               if (!isMatch) {
                 throw new Error("Mot de passe incorrect.");
               }
+              const isOwner = ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(dbUser.email.toLowerCase().trim());
               return {
                 id: dbUser.id,
                 email: dbUser.email,
                 name: email.split("@")[0],
                 userType: (dbUser.profile as any)?.userType || "student",
+                role: (dbUser as any).role || (isOwner ? "admin" : "candidate"),
               } as any;
             }
           } catch {
@@ -151,6 +167,11 @@ export const authOptions: AuthOptions = {
         token.email = user.email;
         token.name = user.name;
         token.userType = (user as any).userType || "student";
+        token.role = (user as any).role || "candidate";
+      }
+      // Ensure owner emails always have admin role
+      if (token.email && ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes((token.email as string).toLowerCase().trim())) {
+        token.role = "admin";
       }
       return token;
     },
@@ -160,6 +181,7 @@ export const authOptions: AuthOptions = {
         session.user.email = token.email as string;
         session.user.name = token.name as string;
         (session.user as any).userType = (token.userType as string) || "student";
+        (session.user as any).role = (token.role as string) || "candidate";
       }
       return session;
     },

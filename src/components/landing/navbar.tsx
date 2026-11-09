@@ -2,11 +2,18 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Briefcase, Menu, X, Sparkles, ArrowRight } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { Briefcase, Menu, X, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function LandingNavbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { data: session } = useSession();
+
+  const userEmail = session?.user?.email?.toLowerCase().trim() || "";
+  const isAdmin =
+    (session?.user as any)?.role === "admin" ||
+    ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(userEmail);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/85 backdrop-blur-md transition-all">
@@ -47,6 +54,15 @@ export function LandingNavbar() {
 
         {/* Desktop Auth CTA */}
         <div className="hidden md:flex items-center gap-3">
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-300 text-xs font-bold shadow-sm transition-all border border-slate-700"
+            >
+              <span>👑</span>
+              <span>Espace Admin</span>
+            </Link>
+          )}
           <Link
             href="/login"
             className="text-sm font-semibold text-slate-700 hover:text-slate-900 px-3 py-2 transition-colors"
