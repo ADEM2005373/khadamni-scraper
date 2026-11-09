@@ -71,7 +71,7 @@ export default function LoginPage() {
           <Sparkles className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
           <div className="space-y-0.5">
             <p className="font-bold text-[11px] uppercase tracking-wider text-red-700">
-              Compte de test configuré (1-Clic)
+              Compte Administrateur & Propriétaire (1-Clic)
             </p>
             <p className="text-[11px] text-slate-700">
               <span className="font-semibold text-slate-900">Email :</span> ouerhaiadem0805@gmail.com
