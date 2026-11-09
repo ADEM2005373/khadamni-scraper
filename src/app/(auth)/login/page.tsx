@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Briefcase, Lock, Mail, Loader2, AlertCircle, CheckCircle2, Sparkles } from "lucide-react";
+import { Briefcase, Lock, Mail, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("ouerhaiadem0805@gmail.com");
-  const [password, setPassword] = useState("ademadem080808");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -41,12 +41,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleFillTestCredentials = () => {
-    setEmail("ouerhaiadem0805@gmail.com");
-    setPassword("ademadem080808");
-    setErrorMessage(null);
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-slate-50 selection:bg-red-500/20 selection:text-red-700">
       <div className="w-full max-w-md bg-white rounded-2xl border border-slate-200/80 shadow-xl p-8 space-y-6">
@@ -60,26 +54,6 @@ export default function LoginPage() {
           <p className="text-xs text-slate-500">
             Accédez à votre intelligence de recherche d&apos;emploi et votre profil candidat ATS
           </p>
-        </div>
-
-        {/* Quick test credentials helper badge */}
-        <div
-          onClick={handleFillTestCredentials}
-          className="p-3 rounded-xl bg-red-50/70 border border-red-200/70 text-xs text-red-900 cursor-pointer hover:bg-red-100/70 transition-all flex items-start gap-2.5"
-          title="Cliquez pour insérer automatiquement ces identifiants"
-        >
-          <Sparkles className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
-            <p className="font-bold text-[11px] uppercase tracking-wider text-red-700">
-              Compte Administrateur & Propriétaire (1-Clic)
-            </p>
-            <p className="text-[11px] text-slate-700">
-              <span className="font-semibold text-slate-900">Email :</span> ouerhaiadem0805@gmail.com
-            </p>
-            <p className="text-[11px] text-slate-700">
-              <span className="font-semibold text-slate-900">Mot de passe :</span> ademadem080808
-            </p>
-          </div>
         </div>
 
         {errorMessage && (

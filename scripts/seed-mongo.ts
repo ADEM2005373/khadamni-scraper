@@ -35,18 +35,18 @@ async function main() {
 
   // 3. Seed Users & Profiles
   console.log("\n[3/4] Ensuring default accounts in 'users' and 'profiles'...");
-  const defaultPasswordHash = await bcrypt.hash("Password123!", 10);
+  const defaultPasswordHash = await bcrypt.hash("ademadem0808", 10);
+
+  // Remove legacy test accounts
+  await db.collection("users").deleteOne({ email: "adem@khadamni.com" });
+  await db.collection("profiles").deleteOne({ email: "adem@khadamni.com" });
 
   const defaultUsers = [
     {
       email: "ouerhaiadem0805@gmail.com",
       name: "Adem Ouerhani",
-      userType: "student",
-    },
-    {
-      email: "adem@khadamni.com",
-      name: "Adem Ouerhani",
       userType: "worker",
+      role: "admin",
     },
   ];
 
@@ -57,7 +57,7 @@ async function main() {
         $set: {
           email: user.email,
           passwordHash: defaultPasswordHash,
-          role: "candidate",
+          role: user.role || "admin",
           updatedAt: new Date(),
         },
         $setOnInsert: {
@@ -92,7 +92,7 @@ async function main() {
       { upsert: true }
     );
 
-    console.log(`✓ User synced: ${user.email} (Type: ${user.userType}, Password: Password123!)`);
+    console.log(`✓ User synced: ${user.email} (Type: ${user.userType}, Password: ademadem0808)`);
   }
 
   // 4. Verification breakdown

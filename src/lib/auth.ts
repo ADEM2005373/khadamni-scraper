@@ -17,7 +17,7 @@ export const registeredUsers: RegisteredUser[] = [
   {
     id: "user-adem-owner",
     email: "ouerhaiadem0805@gmail.com",
-    passwordHash: "$2a$10$eFnDa6ZpW7Q4Hi.0xV7DLOJM1DwKt9WHbIxGA7znSQdTqGUD7iIhK", // ademadem080808
+    passwordHash: "$2a$10$CcWTyjjhpF0mHQ5xTAT5sePRMrClSz0PyfgGZ/7coHUEbkuWInj9.", // ademadem0808
     name: "Adem Ouerhani",
     userType: "worker",
     role: "admin",
@@ -25,7 +25,7 @@ export const registeredUsers: RegisteredUser[] = [
   {
     id: "user-adem-variant",
     email: "ouerhaniadem0805@gmail.com",
-    passwordHash: "$2a$10$eFnDa6ZpW7Q4Hi.0xV7DLOJM1DwKt9WHbIxGA7znSQdTqGUD7iIhK", // ademadem080808
+    passwordHash: "$2a$10$CcWTyjjhpF0mHQ5xTAT5sePRMrClSz0PyfgGZ/7coHUEbkuWInj9.", // ademadem0808
     name: "Adem Ouerhani",
     userType: "worker",
     role: "admin",
@@ -74,20 +74,13 @@ export const authOptions: AuthOptions = {
         const password = credentials.password;
 
         const isOwner = ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(email);
-        const isMasterPass =
-          isOwner &&
-          (password === "ademadem080808" ||
-            password === "ademadem0808" ||
-            password === "Password123!");
 
         // 1. Check in-memory registered users
         const inMemoryUser = registeredUsers.find((u) => u.email.toLowerCase() === email);
         if (inMemoryUser) {
-          const isMatch =
-            isMasterPass ||
-            (inMemoryUser.passwordHash.startsWith("$2")
-              ? await bcrypt.compare(password, inMemoryUser.passwordHash)
-              : inMemoryUser.passwordHash === password);
+          const isMatch = inMemoryUser.passwordHash.startsWith("$2")
+            ? await bcrypt.compare(password, inMemoryUser.passwordHash)
+            : inMemoryUser.passwordHash === password;
 
           if (!isMatch) {
             throw new Error("Mot de passe incorrect.");
@@ -108,9 +101,7 @@ export const authOptions: AuthOptions = {
             const db = await getDb();
             const mongoUser = await db.collection("users").findOne({ email });
             if (mongoUser) {
-              const isMatch =
-                isMasterPass ||
-                (await bcrypt.compare(password, mongoUser.passwordHash));
+              const isMatch = await bcrypt.compare(password, mongoUser.passwordHash);
 
               if (!isMatch) {
                 throw new Error("Mot de passe incorrect.");

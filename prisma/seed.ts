@@ -61,7 +61,7 @@ async function main() {
 
   // Seed Clean User Account for final production test
   const bcrypt = await import("bcryptjs");
-  const passwordHash = await bcrypt.hash("ademadem080808", 10);
+  const passwordHash = await bcrypt.hash("ademadem0808", 10);
 
   const testUser = await prisma.user.upsert({
     where: { email: "ouerhaiadem0805@gmail.com" },
