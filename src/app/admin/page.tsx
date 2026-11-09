@@ -729,12 +729,14 @@ export default function AdminDashboardPage() {
                             <div className="flex items-center justify-between truncate">
                               <span>Source :</span>
                               <a
-                                href={portal.baseUrl}
+                                href={portal.baseUrl || "#"}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-slate-300 hover:text-white flex items-center gap-1 truncate"
                               >
-                                <span className="truncate">{portal.baseUrl.replace("https://", "")}</span>
+                                <span className="truncate">
+                                  {(portal.baseUrl || portal.name || "").replace(/^https?:\/\//, "")}
+                                </span>
                                 <ExternalLink className="w-3 h-3 shrink-0" />
                               </a>
                             </div>

@@ -30,7 +30,8 @@ export async function GET() {
 
       portalStatus.push({
         name: portal.name,
-        baseUrl: portal.baseUrl,
+        baseUrl: portal.officialUrl || portal.searchUrl || "",
+        officialUrl: portal.officialUrl || portal.searchUrl || "",
         badgeColor: portal.badgeColor,
         totalJobs: count,
         status: "operational",
