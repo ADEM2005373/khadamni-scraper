@@ -128,7 +128,7 @@ export default function AdminDashboardPage() {
 
   // Auth Guard
   const userEmail = session?.user?.email?.toLowerCase().trim() || "";
-  const isOwner = ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(userEmail);
+  const isOwner = ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(userEmail);
   const isAdmin = (session?.user as any)?.role === "admin" || isOwner;
 
   useEffect(() => {

@@ -29,7 +29,7 @@ export async function GET() {
         id: u._id.toString(),
         email: u.email,
         name: u.name || `${p.firstName || ""} ${p.lastName || ""}`.trim() || email.split("@")[0],
-        role: u.role || (["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(email) ? "admin" : "candidate"),
+        role: u.role || (["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(email) ? "admin" : "candidate"),
         userType: p.userType || u.userType || "student",
         atsScore: p.atsScore || null,
         cvFileUrl: p.cvFileUrl || null,
@@ -72,7 +72,7 @@ export async function PUT(request: Request) {
     const targetEmail = user.email.toLowerCase().trim();
 
     // Prevent removing admin role from owner accounts
-    if (["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(targetEmail) && role === "candidate") {
+    if (["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(targetEmail) && role === "candidate") {
       return NextResponse.json(
         { success: false, error: "Impossible de retirer le rôle Admin du propriétaire de la plateforme." },
         { status: 400 }
@@ -123,7 +123,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ success: false, error: "Utilisateur introuvable." }, { status: 404 });
     }
 
-    if (["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(user.email.toLowerCase().trim())) {
+    if (["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(user.email.toLowerCase().trim())) {
       return NextResponse.json(
         { success: false, error: "Impossible de supprimer le compte du propriétaire de Khadamni." },
         { status: 400 }

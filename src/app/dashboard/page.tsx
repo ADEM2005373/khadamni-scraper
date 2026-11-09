@@ -225,7 +225,7 @@ export default function DashboardPage() {
 
             {/* Admin / Owner Portal Direct Access */}
             {((session?.user as any)?.role === "admin" ||
-              ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(
+              ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(
                 session?.user?.email?.toLowerCase().trim() || ""
               )) && (
               <Link

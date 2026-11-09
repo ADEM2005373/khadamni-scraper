@@ -12,19 +12,11 @@ export interface RegisteredUser {
   role?: "admin" | "candidate";
 }
 
-// In-memory user registry containing default owner accounts with secure bcrypt hash
+// In-memory user registry containing the single owner admin account
 export const registeredUsers: RegisteredUser[] = [
   {
-    id: "user-adem-0805",
+    id: "user-adem-owner",
     email: "ouerhaiadem0805@gmail.com",
-    passwordHash: "$2a$10$.OveQhg3.zeX.xh6GkZfBOIM93B4SqlElqJHdXl0yznt0GDDnSSQK",
-    name: "Adem Ouerhani",
-    userType: "student",
-    role: "admin",
-  },
-  {
-    id: "user-adem-worker",
-    email: "adem@khadamni.com",
     passwordHash: "$2a$10$.OveQhg3.zeX.xh6GkZfBOIM93B4SqlElqJHdXl0yznt0GDDnSSQK",
     name: "Adem Ouerhani",
     userType: "worker",
@@ -109,7 +101,7 @@ export const authOptions: AuthOptions = {
                 ? `${mongoProfile.firstName || ""} ${mongoProfile.lastName || ""}`.trim()
                 : email.split("@")[0];
 
-              const isOwner = ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(mongoUser.email.toLowerCase().trim());
+              const isOwner = ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(mongoUser.email.toLowerCase().trim());
               const role = mongoUser.role || (isOwner ? "admin" : "candidate");
 
               return {
@@ -138,7 +130,7 @@ export const authOptions: AuthOptions = {
               if (!isMatch) {
                 throw new Error("Mot de passe incorrect.");
               }
-              const isOwner = ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(dbUser.email.toLowerCase().trim());
+              const isOwner = ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(dbUser.email.toLowerCase().trim());
               return {
                 id: dbUser.id,
                 email: dbUser.email,
@@ -169,8 +161,8 @@ export const authOptions: AuthOptions = {
         token.userType = (user as any).userType || "student";
         token.role = (user as any).role || "candidate";
       }
-      // Ensure owner emails always have admin role
-      if (token.email && ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes((token.email as string).toLowerCase().trim())) {
+      // Ensure owner email always has admin role
+      if (token.email && ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes((token.email as string).toLowerCase().trim())) {
         token.role = "admin";
       }
       return token;

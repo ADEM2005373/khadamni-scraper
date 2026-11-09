@@ -13,7 +13,7 @@ export function LandingNavbar() {
   const userEmail = session?.user?.email?.toLowerCase().trim() || "";
   const isAdmin =
     (session?.user as any)?.role === "admin" ||
-    ["ouerhaiadem0805@gmail.com", "adem@khadamni.com"].includes(userEmail);
+    ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(userEmail);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/85 backdrop-blur-md transition-all">

@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export const OWNER_EMAILS = [
   "ouerhaiadem0805@gmail.com",
-  "adem@khadamni.com",
+  "ouerhaniadem0805@gmail.com",
 ];
 
 export async function verifyAdminSession() {
