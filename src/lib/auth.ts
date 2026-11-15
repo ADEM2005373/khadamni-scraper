@@ -1,6 +1,5 @@
 import { type AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import prisma, { isDatabaseAvailable } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export interface RegisteredUser {
@@ -12,17 +11,8 @@ export interface RegisteredUser {
   role?: "admin" | "candidate";
 }
 
-// In-memory user registry containing the primary admin account
-export const registeredUsers: RegisteredUser[] = [
-  {
-    id: "user-admin-owner",
-    email: "ouerhaiadem0805@gmail.com",
-    passwordHash: "$2a$10$8YoUj0gUGF9xcSG3wcn1hu8bIadQhlJmmVIl6izy9JprxiOFlSxT.", // ademadem0808
-    name: "Adem Ouerhani",
-    userType: "worker",
-    role: "admin",
-  },
-];
+// In-memory registry kept as ephemeral fallback cache only
+export const registeredUsers: RegisteredUser[] = [];
 
 export function registerNewUser(
   email: string,
@@ -64,10 +54,49 @@ export const authOptions: AuthOptions = {
 
         const email = credentials.email.toLowerCase().trim();
         const password = credentials.password;
-
         const isOwner = ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(email);
 
-        // 1. Check in-memory registered users
+        // 1. Direct authoritative check against MongoDB Atlas
+        try {
+          const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
+          const mongoReady = await isMongoAvailable();
+
+          if (mongoReady) {
+            const db = await getDb();
+            const mongoUser = await db.collection("users").findOne({ email });
+
+            if (mongoUser) {
+              const isMatch = await bcrypt.compare(password, mongoUser.passwordHash);
+              if (!isMatch) {
+                throw new Error("Mot de passe incorrect.");
+              }
+
+              const mongoProfile = await db
+                .collection("profiles")
+                .findOne({ $or: [{ userId: mongoUser._id.toString() }, { email }] });
+
+              const fullName = mongoProfile?.firstName
+                ? `${mongoProfile.firstName} ${mongoProfile.lastName || ""}`.trim()
+                : (mongoUser.name as string) || email.split("@")[0];
+
+              const role = mongoUser.role || (isOwner ? "admin" : "candidate");
+              const userType = mongoProfile?.userType || mongoUser.userType || "worker";
+
+              return {
+                id: mongoUser._id.toString(),
+                email: mongoUser.email,
+                name: fullName,
+                userType,
+                role,
+              } as any;
+            }
+          }
+        } catch (mErr: any) {
+          if (mErr.message === "Mot de passe incorrect.") throw mErr;
+          console.warn("[Auth Warning] MongoDB query notice:", mErr?.message);
+        }
+
+        // 2. Ephemeral session check if registered in current runtime
         const inMemoryUser = registeredUsers.find((u) => u.email.toLowerCase() === email);
         if (inMemoryUser) {
           const isMatch = inMemoryUser.passwordHash.startsWith("$2")
@@ -84,68 +113,6 @@ export const authOptions: AuthOptions = {
             userType: inMemoryUser.userType || "worker",
             role: inMemoryUser.role || (isOwner ? "admin" : "candidate"),
           } as any;
-        }
-
-        // 2. Check MongoDB users collection
-        try {
-          const { getDb, isMongoAvailable } = await import("@/lib/mongodb");
-          if (await isMongoAvailable()) {
-            const db = await getDb();
-            const mongoUser = await db.collection("users").findOne({ email });
-            if (mongoUser) {
-              const isMatch = await bcrypt.compare(password, mongoUser.passwordHash);
-
-              if (!isMatch) {
-                throw new Error("Mot de passe incorrect.");
-              }
-              const mongoProfile = await db
-                .collection("profiles")
-                .findOne({ $or: [{ userId: mongoUser._id.toString() }, { email }] });
-
-              const fullName = mongoProfile
-                ? `${mongoProfile.firstName || ""} ${mongoProfile.lastName || ""}`.trim()
-                : email.split("@")[0];
-
-              const role = mongoUser.role || (isOwner ? "admin" : "candidate");
-
-              return {
-                id: mongoUser._id.toString(),
-                email: mongoUser.email,
-                name: fullName || email.split("@")[0],
-                userType: mongoProfile?.userType || "worker",
-                role,
-              } as any;
-            }
-          }
-        } catch (mErr: any) {
-          if (mErr.message === "Mot de passe incorrect.") throw mErr;
-          console.warn("[Auth Note] MongoDB auth check:", mErr?.message);
-        }
-
-        // 3. Fallback check to PostgreSQL database if connected
-        if (await isDatabaseAvailable()) {
-          try {
-            const dbUser = await prisma.user.findUnique({
-              where: { email },
-              include: { profile: true },
-            });
-            if (dbUser) {
-              const isMatch = await bcrypt.compare(password, dbUser.passwordHash);
-              if (!isMatch) {
-                throw new Error("Mot de passe incorrect.");
-              }
-              const isOwner = ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(dbUser.email.toLowerCase().trim());
-              return {
-                id: dbUser.id,
-                email: dbUser.email,
-                name: email.split("@")[0],
-                userType: (dbUser.profile as any)?.userType || "student",
-                role: (dbUser as any).role || (isOwner ? "admin" : "candidate"),
-              } as any;
-            }
-          } catch {
-            // Database connection offline, fall through to error
-          }
         }
 
         throw new Error("Identifiants invalides. Vérifiez votre adresse email et mot de passe.");
@@ -165,8 +132,13 @@ export const authOptions: AuthOptions = {
         token.userType = (user as any).userType || "student";
         token.role = (user as any).role || "candidate";
       }
-      // Ensure owner email always has admin role
-      if (token.email && ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes((token.email as string).toLowerCase().trim())) {
+      // Ensure owner email always maintains administrative privileges
+      if (
+        token.email &&
+        ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(
+          (token.email as string).toLowerCase().trim()
+        )
+      ) {
         token.role = "admin";
       }
       return token;
