@@ -44,7 +44,7 @@ async function main() {
 
   // 4. Test MongoDB Settings collection & default config
   console.log("\n[4/6] Testing System Settings & Gemini Config...");
-  let config = await db.collection("settings").findOne({ key: "global_config" });
+  let config: any = await db.collection("settings").findOne({ key: "global_config" });
   if (!config) {
     config = {
       key: "global_config",

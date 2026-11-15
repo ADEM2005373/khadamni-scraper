@@ -225,6 +225,18 @@ export function CoverLetterModal({
               )}
             </div>
 
+            {coverLetter && !isLoading && (
+              <div className="mx-6 mb-2 p-3 rounded-xl bg-amber-50 border border-amber-200/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-amber-900">
+                <span className="flex items-center gap-1.5 font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                  <span>Lettre générée et adaptée au marché tunisien</span>
+                </span>
+                <span className="font-bold text-[11px] text-amber-800 bg-white px-2 py-0.5 rounded-lg border border-amber-200">
+                  Illimité avec Khadamni Pro (15-25 DT)
+                </span>
+              </div>
+            )}
+
             {/* Modal Footer */}
             <div className="p-4 sm:p-6 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
               <span className="text-[11px] text-slate-400 font-medium">

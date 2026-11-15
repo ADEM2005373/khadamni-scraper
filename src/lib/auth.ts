@@ -12,20 +12,12 @@ export interface RegisteredUser {
   role?: "admin" | "candidate";
 }
 
-// In-memory user registry containing the single owner admin account
+// In-memory user registry containing the primary admin account
 export const registeredUsers: RegisteredUser[] = [
   {
-    id: "user-adem-owner",
+    id: "user-admin-owner",
     email: "ouerhaiadem0805@gmail.com",
-    passwordHash: "$2a$10$CcWTyjjhpF0mHQ5xTAT5sePRMrClSz0PyfgGZ/7coHUEbkuWInj9.", // ademadem0808
-    name: "Adem Ouerhani",
-    userType: "worker",
-    role: "admin",
-  },
-  {
-    id: "user-adem-variant",
-    email: "ouerhaniadem0805@gmail.com",
-    passwordHash: "$2a$10$CcWTyjjhpF0mHQ5xTAT5sePRMrClSz0PyfgGZ/7coHUEbkuWInj9.", // ademadem0808
+    passwordHash: "$2a$10$8YoUj0gUGF9xcSG3wcn1hu8bIadQhlJmmVIl6izy9JprxiOFlSxT.", // ademadem0808
     name: "Adem Ouerhani",
     userType: "worker",
     role: "admin",

@@ -1,5 +1,6 @@
 import { scrapeTanitJobs } from "./tanitjobs";
 import { scrapeKeejob } from "./keejob";
+import { scrapePFEBooks } from "./pfebooks";
 import {
   scrapeLinkedInJobs,
   scrapeAnetiJobs,
@@ -22,9 +23,9 @@ export interface AggregatedScrapeResult {
 
 export async function runAllScrapers(): Promise<AggregatedScrapeResult> {
   const startTime = Date.now();
-  console.log("[ScraperEngine] Launching multi-portal scraping sequence for all 10 Tunisian job boards...");
+  console.log("[ScraperEngine] Launching multi-portal scraping sequence for all Tunisian job boards and PFEBooks.com...");
 
-  // Execute all 10 scrapers in parallel with safe error isolation
+  // Execute all scrapers in parallel with safe error isolation
   const results = await Promise.allSettled([
     scrapeTanitJobs(),
     scrapeLinkedInJobs(),
@@ -36,6 +37,7 @@ export async function runAllScrapers(): Promise<AggregatedScrapeResult> {
     scrapeBayt(),
     scrapeFarah(),
     scrapeExpertini(),
+    scrapePFEBooks(),
   ]);
 
   const sourcesRecord: Record<string, ScraperResult> = {};
@@ -52,6 +54,7 @@ export async function runAllScrapers(): Promise<AggregatedScrapeResult> {
     "Bayt",
     "Farah.tn",
     "Expertini",
+    "PFEBooks.com",
   ];
 
   results.forEach((res, index) => {
@@ -113,5 +116,6 @@ export async function runAllScrapers(): Promise<AggregatedScrapeResult> {
 export * from "./types";
 export * from "./tanitjobs";
 export * from "./keejob";
+export * from "./pfebooks";
 export * from "./allPortalsScraper";
 export * from "./userAgentRotator";

@@ -20,8 +20,12 @@ export async function POST(request: Request) {
     const passwordHash = await bcrypt.hash(password, 10);
     const validUserType: "student" | "worker" = userType === "worker" ? "worker" : "student";
 
+    const isOwner = ["ouerhaiadem0805@gmail.com", "ouerhaniadem0805@gmail.com"].includes(normalizedEmail);
+    const assignedRole = isOwner ? "admin" : "candidate";
+
     // Save in in-memory registry
-    registerNewUser(normalizedEmail, passwordHash, displayName, validUserType);
+    const regUser = registerNewUser(normalizedEmail, passwordHash, displayName, validUserType);
+    regUser.role = assignedRole;
 
     // Save in clean profile store
     updateProfileForEmail(normalizedEmail, {
@@ -40,7 +44,8 @@ export async function POST(request: Request) {
             $set: {
               email: normalizedEmail,
               passwordHash,
-              role: "candidate",
+              role: assignedRole,
+              userType: validUserType,
               updatedAt: new Date(),
             },
             $setOnInsert: {

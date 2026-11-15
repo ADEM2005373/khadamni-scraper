@@ -14,6 +14,9 @@ export interface UserProfileData {
   atsScore: number | null;
   hasCompletedOnboarding: boolean;
   userType?: "student" | "worker";
+  subscriptionTier?: "free" | "student" | "pro";
+  subscriptionExpiresAt?: string | null;
+  lettersCount?: number;
 }
 
 // Global in-memory map of profiles keyed by email surviving HMR
@@ -80,13 +83,12 @@ export function getProfileForEmail(email: string): UserProfileData {
   const normalized = email.toLowerCase().trim();
 
   if (!globalProfiles.has(normalized)) {
-    const isTestUser = normalized === "ouerhaiadem0805@gmail.com";
     const initial: UserProfileData = {
       id: `profile-${Date.now()}`,
       userId: `user-${Date.now()}`,
       email: normalized,
-      firstName: isTestUser ? "Adem" : "",
-      lastName: isTestUser ? "Ouerhai" : "",
+      firstName: "",
+      lastName: "",
       linkedinUrl: "",
       githubUrl: "",
       portfolioUrl: "",
@@ -94,6 +96,9 @@ export function getProfileForEmail(email: string): UserProfileData {
       atsScore: null,
       hasCompletedOnboarding: false,
       userType: "student",
+      subscriptionTier: "free",
+      subscriptionExpiresAt: null,
+      lettersCount: 0,
     };
     globalProfiles.set(normalized, initial);
     saveToDisk(globalProfiles);

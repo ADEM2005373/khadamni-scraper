@@ -133,9 +133,9 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login?callbackUrl=/admin");
+      router.push("/admin/login");
     } else if (status === "authenticated" && !isAdmin) {
-      // not an admin, deny access
+      router.push("/admin/login?error=unauthorized");
     }
   }, [status, isAdmin, router]);
 

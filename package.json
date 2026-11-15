@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape:cron": "tsx scripts/run-scraper.ts",
-    "mongo:seed": "tsx scripts/seed-mongo.ts",
+    "scrape:cron": "tsx --env-file=.env scripts/run-scraper.ts",
+    "mongo:seed": "tsx --env-file=.env scripts/seed-mongo.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts"

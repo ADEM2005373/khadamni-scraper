@@ -9,6 +9,7 @@ export type TunisianJobSource =
   | "Bayt"
   | "Farah.tn"
   | "Expertini"
+  | "PFEBooks.com"
   | string;
 
 export interface PortalMetadata {
@@ -100,6 +101,14 @@ export const TUNISIAN_PORTALS: PortalMetadata[] = [
     searchUrl: "https://tn.expertini.com/jobs/",
     description: "Moteur de recherche d'offres qualifiées et carrières en Tunisie",
     badgeColor: "bg-teal-100 text-teal-800 border-teal-200",
+  },
+  {
+    id: "pfebooks",
+    name: "PFEBooks.com",
+    officialUrl: "https://pfebooks.com",
+    searchUrl: "https://pfebooks.com/catalogue/",
+    description: "Portail n°1 des catalogues PFE Book et stages de fin d'études en Tunisie",
+    badgeColor: "bg-purple-100 text-purple-800 border-purple-200",
   },
 ];
 

@@ -85,13 +85,16 @@ export async function isMongoAvailable(): Promise<boolean> {
     const c = await Promise.race([
       clientPromise,
       new Promise<null>((_, reject) =>
-        setTimeout(() => reject(new Error("Timeout")), 3000)
+        setTimeout(() => reject(new Error("Timeout")), 8000)
       ),
     ]);
     if (!c) return false;
     await c.db(dbName).command({ ping: 1 });
     return true;
-  } catch {
+  } catch (err: any) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[MongoDB Availability Check Note]:", err?.message);
+    }
     return false;
   }
 }

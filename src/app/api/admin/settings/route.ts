@@ -12,7 +12,7 @@ export async function GET() {
 
   try {
     const db = await getDb();
-    let config = await db.collection("settings").findOne({ key: "global_config" });
+    let config: any = await db.collection("settings").findOne({ key: "global_config" });
 
     if (!config) {
       config = {

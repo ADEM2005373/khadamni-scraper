@@ -29,6 +29,7 @@ import { ApplicationTrackerPanel } from "@/components/dashboard/application-trac
 import { VirtualGuideModal, OnboardingGuide } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
 import { CoverLetterModal } from "@/components/dashboard/cover-letter-modal";
+import { UpgradeModal } from "@/components/dashboard/upgrade-modal";
 import { TUNISIAN_PORTALS } from "@/services/scraper/types";
 
 interface JobItem {
@@ -64,6 +65,8 @@ export default function DashboardPage() {
   const [locationFilter, setLocationFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [userType, setUserType] = useState<"student" | "worker">("student");
+  const [subscriptionTier, setSubscriptionTier] = useState<"free" | "student" | "pro">("free");
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
 
   // Scraper manual trigger state
   const [isScraping, setIsScraping] = useState(false);
@@ -82,8 +85,13 @@ export default function DashboardPage() {
       try {
         const res = await fetch("/api/profile");
         const data = await res.json();
-        if (data.success && data.profile?.userType) {
-          setUserType(data.profile.userType);
+        if (data.success && data.profile) {
+          if (data.profile.userType) {
+            setUserType(data.profile.userType);
+          }
+          if (data.profile.subscriptionTier) {
+            setSubscriptionTier(data.profile.subscriptionTier);
+          }
         }
       } catch (err) {
         console.warn("Could not load user profile:", err);
@@ -222,6 +230,27 @@ export default function DashboardPage() {
             >
               Mon Profil & CV ATS
             </Link>
+
+            {/* VIP / Pro Tier Badge & Trigger */}
+            <button
+              onClick={() => setIsUpgradeOpen(true)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all hover:scale-105 shadow-xs ${
+                subscriptionTier === "pro"
+                  ? "bg-amber-100 border border-amber-300 text-amber-900"
+                  : subscriptionTier === "student"
+                  ? "bg-blue-100 border border-blue-300 text-blue-900"
+                  : "bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-red-500/20"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>
+                {subscriptionTier === "pro"
+                  ? "👑 Membre Pro (Actif)"
+                  : subscriptionTier === "student"
+                  ? "🎓 Pack Étudiant (Actif)"
+                  : "Passer à Pro (15-25 DT)"}
+              </span>
+            </button>
 
             {/* Admin / Owner Portal Direct Access */}
             {((session?.user as any)?.role === "admin" ||
@@ -790,6 +819,15 @@ export default function DashboardPage() {
             <ApplicationTrackerPanel />
           </div>
         )}
+
+        {/* Upgrade to Pro Modal */}
+        <UpgradeModal
+          isOpen={isUpgradeOpen}
+          onClose={() => setIsUpgradeOpen(false)}
+          onSuccess={() => {
+            setSubscriptionTier("pro");
+          }}
+        />
       </main>
     </div>
   );

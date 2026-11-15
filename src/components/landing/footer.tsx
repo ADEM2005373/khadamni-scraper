@@ -116,6 +116,9 @@ export function LandingFooter() {
             <span className="hover:text-slate-400 cursor-pointer">Confidentialité</span>
             <span className="hover:text-slate-400 cursor-pointer">Conditions d&apos;utilisation</span>
             <span className="hover:text-slate-400 cursor-pointer">Contact Support</span>
+            <Link href="/admin/login" className="hover:text-amber-400 transition-colors text-[11px] opacity-40 hover:opacity-100">
+              Console Admin
+            </Link>
           </div>
         </div>
       </div>

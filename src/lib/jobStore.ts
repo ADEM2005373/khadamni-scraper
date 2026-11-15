@@ -497,6 +497,73 @@ const INITIAL_DIVERSE_JOBS: StoredJob[] = [
     category: "Stage PFE",
     predicted_chance: 92,
   },
+
+  // 11. PFEBooks.com (Portail officiel PFE Books Tunisie)
+  {
+    id: "pfebook-uptech-1",
+    source_site: "PFEBooks.com",
+    job_title: "PFE Book UPTech 2026-2027 : 22 Stages PFE Hybrides",
+    company_name: "UPTech",
+    location: "Tunisie (Hybride / Tunis)",
+    description: "PFE Book UPTech 2026-2027 : 22 stages PFE hybrides en IA, AIOps, cloud, DevOps, développement full-stack, data et UI/UX design. Postulez en ligne avec votre CV.",
+    requirements: "Stage PFE, IA, AIOps, Cloud, DevOps, Next.js, Node.js, Python, RAG, Kubernetes",
+    url: "https://uptech.com.tn/pfe-2027.html",
+    scraped_at: new Date(Date.now() - 3600000).toISOString(),
+    category: "Stage / PFE",
+    predicted_chance: 95,
+  },
+  {
+    id: "pfebook-orange-1",
+    source_site: "PFEBooks.com",
+    job_title: "PFE Book Orange 2026-2027 : 73 Stages à Tunis",
+    company_name: "Orange Tunisie",
+    location: "Tunis, Les Berges du Lac",
+    description: "PFE Book Orange 2026-2027 : 73 stages à Tunis en réseaux 5G, IA, data science, cloud, cybersécurité, marketing digital et RH. Choisissez vos sujets et postulez en ligne.",
+    requirements: "Stage PFE, Réseaux, 5G, Intelligence Artificielle, Data Analytics, Cybersécurité, Cloud AWS/Azure",
+    url: "https://msurvey.orange.com/OFT2026_l0S9Jg",
+    scraped_at: new Date(Date.now() - 7200000).toISOString(),
+    category: "Stage / PFE",
+    predicted_chance: 96,
+  },
+  {
+    id: "pfebook-wevioo-1",
+    source_site: "PFEBooks.com",
+    job_title: "PFE Book Wevioo 2026-2027 : 43 Sujets de Stage 6 Mois",
+    company_name: "Wevioo",
+    location: "Tunis, Charguia 2",
+    description: "Wevioo publie son PFE Book 2026-2027 : 43 sujets de stage de 6 mois en data, IA générative, génie logiciel, cloud et cybersécurité avec opportunité de pré-embauche.",
+    requirements: "Stage PFE, Fin d'études ingénieur, Java Spring Boot, Angular, React, Cloud, LLM, Python",
+    url: "mailto:pfe@wevioo.com",
+    scraped_at: new Date(Date.now() - 10800000).toISOString(),
+    category: "Stage / PFE",
+    predicted_chance: 93,
+  },
+  {
+    id: "pfebook-capgemini-1",
+    source_site: "PFEBooks.com",
+    job_title: "PFE Book Capgemini 2026-2027 : 35 Sujets pour 65 Stagiaires",
+    company_name: "Capgemini Engineering",
+    location: "Tunis, Ariana",
+    description: "Capgemini dévoile son PFE Book 2026-2027 : 35 sujets pour 65 stagiaires en IA agentique, data, systèmes embarqués automobiles, tests automatisés et cloud.",
+    requirements: "Stage PFE, Systèmes Embarqués, C/C++, Python, IA, AutoSAR, Test ISTQB, DevOps",
+    url: "https://www.capgemini.com",
+    scraped_at: new Date(Date.now() - 14400000).toISOString(),
+    category: "Stage / PFE",
+    predicted_chance: 94,
+  },
+  {
+    id: "pfebook-sopal-1",
+    source_site: "PFEBooks.com",
+    job_title: "PFE Book SOPAL 2026-2027 : 33 Stages Rémunérés Industrie 4.0",
+    company_name: "SOPAL",
+    location: "Sfax, Tunisie",
+    description: "PFE Book SOPAL 2026-2027 : 33 stages rémunérés en conception mécanique, automatisation industrielle, logistique lean, qualité et intelligence artificielle appliquée.",
+    requirements: "Stage PFE, Génie Mécanique, Génie Industriel, Automatisme, SolidWorks, Lean Manufacturing, IA",
+    url: "https://recrutement.sopal.com/Candidature/Stages",
+    scraped_at: new Date(Date.now() - 18000000).toISOString(),
+    category: "Stage / PFE",
+    predicted_chance: 91,
+  },
 ];
 
 // In-memory cache across serverless / hot reload cycles
@@ -623,7 +690,7 @@ export function saveScrapedJobs(newJobs: ScrapedJobRaw[]): number {
 
   // Deduplicate by title+company as final safety
   const finalMap = new Map<string, StoredJob>();
-  for (const j of urlMap.values()) {
+  for (const j of Array.from(urlMap.values())) {
     const key = `${j.job_title.toLowerCase().trim()}:::${j.company_name.toLowerCase().trim()}`;
     if (!finalMap.has(key)) {
       finalMap.set(key, j);
@@ -666,12 +733,13 @@ export async function syncJobsToMongo(
       const jobTitle = "job_title" in j ? j.job_title : (j as any).jobTitle;
       const companyName = "company_name" in j ? j.company_name : (j as any).companyName;
       const sourceSite = "source_site" in j ? j.source_site : (j as any).sourceSite;
-      const scrapedAt =
+      const rawScrapedAt =
         "scraped_at" in j
-          ? new Date(j.scraped_at)
+          ? j.scraped_at
           : "scrapedAt" in j
-          ? new Date(j.scrapedAt)
-          : new Date();
+          ? (j as any).scrapedAt
+          : undefined;
+      const scrapedAt = rawScrapedAt ? new Date(rawScrapedAt) : new Date();
 
       const dedupHash = crypto
         .createHash("sha256")
@@ -743,7 +811,8 @@ export function getScrapedJobs(filters?: {
         s.includes(targetSource) ||
         targetSource.includes(s) ||
         (targetSource === "aneti" && s.includes("aneti")) ||
-        (targetSource === "optioncarriere" && s.includes("optioncarriere"))
+        (targetSource === "optioncarriere" && s.includes("optioncarriere")) ||
+        (targetSource === "pfebooks" && s.includes("pfebooks"))
       );
     });
   }

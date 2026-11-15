@@ -805,3 +805,12 @@ export async function scrapeExpertini(): Promise<ScraperResult> {
     executionTimeMs: Date.now() - startTime,
   };
 }
+
+export async function runAllTunisianPortalsScraper(targetPortal?: any): Promise<ScrapedJobRaw[]> {
+  const { runAllScrapers } = await import("./index");
+  const result = await runAllScrapers();
+  if (targetPortal) {
+    return result.jobs.filter((j) => j.source_site.toLowerCase() === targetPortal.toLowerCase() || j.source_site.toLowerCase().includes(targetPortal.toLowerCase()));
+  }
+  return result.jobs;
+}

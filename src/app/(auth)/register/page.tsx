@@ -240,10 +240,26 @@ export default function RegisterPage() {
                 <span>Création du compte...</span>
               </>
             ) : (
-              <span>Créer mon compte</span>
+              <span>Créer mon compte gratuit</span>
             )}
           </button>
         </form>
+
+        {/* Reassurance Badges */}
+        <div className="pt-2 border-t border-slate-100 space-y-2 text-[11px] text-slate-500">
+          <div className="flex items-center gap-2 text-slate-600 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>100% Gratuit pour commencer • Aucune carte bancaire requise</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-600 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>Options Pro optionnelles dès 15 DT/mois (Flouci, Konnect, D17)</span>
+          </div>
+          <div className="flex items-center gap-2 text-slate-600 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+            <span>Données strictement confidentielles et non publiques</span>
+          </div>
+        </div>
 
         <div className="text-center text-xs text-slate-500">
           Vous avez déjà un compte ?{" "}

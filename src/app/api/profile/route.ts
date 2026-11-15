@@ -33,6 +33,8 @@ export async function GET() {
               cvFileUrl: profileDoc.cvFileUrl || null,
               atsScore: profileDoc.atsScore ?? null,
               userType: profileDoc.userType || "student",
+              subscriptionTier: profileDoc.subscriptionTier || "free",
+              subscriptionExpiresAt: profileDoc.subscriptionExpiresAt || null,
             },
           });
         }
@@ -64,6 +66,8 @@ export async function GET() {
               cvFileUrl: user.profile.cvFileUrl || null,
               atsScore: user.profile.atsScore ?? null,
               userType: (user.profile as any).userType || "student",
+              subscriptionTier: (user.profile as any).subscriptionTier || getProfileForEmail(userEmail).subscriptionTier || "free",
+              subscriptionExpiresAt: (user.profile as any).subscriptionExpiresAt || getProfileForEmail(userEmail).subscriptionExpiresAt || null,
             },
           });
         }

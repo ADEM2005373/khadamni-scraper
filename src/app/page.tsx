@@ -5,6 +5,8 @@ import { LandingNavbar } from "@/components/landing/navbar";
 import { StatsTicker } from "@/components/landing/stats-ticker";
 import { FeaturesGrid } from "@/components/landing/features-grid";
 import { JobPreviewSection } from "@/components/landing/job-preview-card";
+import { InstantCvScanner } from "@/components/landing/instant-cv-scanner";
+import { PricingSection } from "@/components/landing/pricing-section";
 import { LandingFooter } from "@/components/landing/footer";
 
 export default function HomePage() {
@@ -78,6 +80,9 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Live Instant Free CV Scanner (Freemium Hook) */}
+        <InstantCvScanner />
+
         {/* Live Platform Stats Ticker */}
         <StatsTicker />
 
@@ -144,6 +149,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Pricing Section (15-25 DT / month) */}
+        <PricingSection />
 
         {/* High Converting Bottom CTA Banner */}
         <section className="py-20 bg-gradient-to-r from-slate-950 via-slate-900 to-red-950 text-white">
